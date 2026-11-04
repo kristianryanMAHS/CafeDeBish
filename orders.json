@@ -1,0 +1,323 @@
+{
+    "orders": [
+        {
+            "id": 1793682739840,
+            "customer": "Y",
+            "location": "E Block - CAPA Staff Room",
+            "items": "Long Black Coffee (Short Shot, Small, Full Cream Milk)",
+            "total": 2.5,
+            "payment": "Portable EFTPOS",
+            "status": "Delivered",
+            "date": "3/11/2026",
+            "time": "04:12 pm"
+        }
+    ],
+    "products": [
+        {
+            "id": "c1",
+            "name": "Long Black Coffee",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c2",
+            "name": "Short Black Coffee",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c3",
+            "name": "Flat White",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c4",
+            "name": "Long Macchiato",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c5",
+            "name": "Short Macchiato",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c6",
+            "name": "Latte",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c7",
+            "name": "Cappuccino",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c8",
+            "name": "Mocha",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c9",
+            "name": "Iced Coffee",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c10",
+            "name": "Affogato",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "c11",
+            "name": "Piccolo",
+            "category": "coffee",
+            "price": 2.5,
+            "isCoffee": true,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "t1",
+            "name": "Caramel Slice",
+            "category": "snacks",
+            "price": 3,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "t2",
+            "name": "Lemon Slice",
+            "category": "snacks",
+            "price": 3,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "t3",
+            "name": "Hedgehog Slice",
+            "category": "snacks",
+            "price": 3,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "t4",
+            "name": "Melting Moments",
+            "category": "snacks",
+            "price": 3,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "t5",
+            "name": "Yoghurt Pots with Berries and Honey",
+            "category": "snacks",
+            "price": 4,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "d1",
+            "name": "Hudson Lemonade",
+            "category": "drinks",
+            "price": 2.5,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "d2",
+            "name": "Orange Sunrise",
+            "category": "drinks",
+            "price": 2.5,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "m1",
+            "name": "Chocolate Milkshake",
+            "category": "drinks",
+            "price": 3.5,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "m2",
+            "name": "Caramel Milkshake",
+            "category": "drinks",
+            "price": 3.5,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "m3",
+            "name": "Strawberry Milkshake",
+            "category": "drinks",
+            "price": 3.5,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "s1",
+            "name": "Bahn Mi with Chicken",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "s2",
+            "name": "Bahn Mi with Crispy Pork",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "s3",
+            "name": "Reuben Sandwich",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "s4",
+            "name": "Cuban Sandwich",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "s5",
+            "name": "Bellingham's Club Sandwich",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "s6",
+            "name": "Mbappe's Croque Monsieur",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "s7",
+            "name": "Egg Sandwich",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "w1",
+            "name": "Chicken Caesar Wrap",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "w2",
+            "name": "Tandoori Chicken Wrap",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "ds1",
+            "name": "Butter Chicken with Rice",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "ds2",
+            "name": "Chicken Biryani with Rice",
+            "category": "food",
+            "price": 7,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "ds3",
+            "name": "Pumpkin Soup",
+            "category": "food",
+            "price": 5,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        },
+        {
+            "id": "ds4",
+            "name": "Thai Chicken and Pumpkin Soup",
+            "category": "food",
+            "price": 5,
+            "isCoffee": false,
+            "inStock": true,
+            "image": ""
+        }
+    ]
+}

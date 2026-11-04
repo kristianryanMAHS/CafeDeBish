@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderUp - Cafe de bish Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        @keyframes greenWhitePulse {
+            0% { background-color: #d1fae5; border-color: #10b981; transform: scale(1); }
+            50% { background-color: #ffffff; border-color: #a7f3d0; transform: scale(1.01); }
+            100% { background-color: #d1fae5; border-color: #10b981; transform: scale(1); }
+        }
+        .new-order-flash {
+            animation: greenWhitePulse 2.5s ease-in-out infinite;
+            animation-iteration-count: 4;
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col overflow-hidden">
+
+<!-- Top Header Navigation -->
+<header class="bg-[#005b45] text-white px-6 py-4 flex flex-wrap items-center justify-between shadow-lg z-20 gap-4">
+    <div class="flex items-center gap-3">
+        <!-- OrderUp Logo Top Left -->
+        <div class="h-10 bg-[#ffb612] px-3 rounded-xl flex items-center justify-center shadow border border-white/20 overflow-hidden shrink-0">
+            <svg viewBox="0 0 160 40" class="h-7 w-auto object-contain" xmlns="http://www.w3.org/2000/svg">
+                <text x="4" y="29" font-family="Inter, sans-serif" font-weight="900" font-size="26" fill="#005b45">ORDER<tspan fill="#ffffff">UP</tspan>!</text>
+            </svg>
+        </div>
+        <!-- Dynamic Heartbeat Connection Indicator -->
+        <div id="connectionIndicator" class="flex items-center gap-2 bg-slate-800/60 border border-slate-600 px-3 py-1 rounded-full text-xs font-semibold text-slate-300 transition-all">
+            <span id="connectionDot" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+            <span id="connectionText">Server Connected</span>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex gap-2 bg-[#004736] p-1 rounded-xl border border-white/10">
+        <button onclick="switchTab('live')" id="tab-live" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all bg-white text-[#005b45] shadow">Live Orders (<span id="liveCount">0</span>)</button>
+        <button onclick="switchTab('neworder')" id="tab-neworder" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">New Order (Walk-in)</button>
+        <button onclick="switchTab('ledger')" id="tab-ledger" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Unpaid Orders (<span id="ledgerCount">0</span>)</button>
+        <button onclick="switchTab('allorders')" id="tab-allorders" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">All Orders</button>
+        <button onclick="switchTab('stock')" id="tab-stock" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Stock & 86-List</button>
+        <button onclick="switchTab('menu')" id="tab-menu" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Product Manager</button>
+    </div>
+
+    <!-- Master Cafe Status & Controls with Mount Austin Logo Top Right -->
+    <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-xl border border-white/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-300" id="statusLabel">Cafe Open</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="cafeToggle" onchange="toggleCafeStatus()" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            </label>
+        </div>
+        <button onclick="exportOrders()" class="px-3.5 py-2 bg-[#ffb612] hover:bg-yellow-400 text-[#005b45] font-bold text-xs rounded-xl transition-all shadow">
+            Export CSV
+        </button>
+        <!-- Mount Austin High School Crest Top Right -->
+        <div class="h-11 w-11 bg-white rounded-xl flex items-center justify-center p-1 shadow border border-white/20 overflow-hidden shrink-0">
+            <svg viewBox="0 0 100 110" class="h-full w-full object-contain" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5 L90 20 L90 60 C90 85 50 105 50 105 C50 105 10 85 10 60 L10 20 Z" fill="#005b45" stroke="#ffb612" stroke-width="4"/>
+                <path d="M50 15 L80 27 L80 58 C80 78 50 95 50 95 C50 95 20 78 20 58 L20 27 Z" fill="#005b45"/>
+                <path d="M25 45 L50 45 L50 78 L25 78 Z" fill="#ffffff"/>
+                <path d="M50 45 L75 45 L75 78 L50 78 Z" fill="#005b45"/>
+            </svg>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto p-6 relative">
+    
+    <!-- TAB 1: Live Orders Feed -->
+    <div id="section-live" class="space-y-8">
+        <div class="space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-base font-bold text-slate-800 uppercase tracking-wide">Active Kitchen Orders</h2>
+                <span class="text-xs bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold">New & In Progress</span>
+            </div>
+            <div id="activeKitchenContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+        </div>
+
+        <div class="space-y-4 pt-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-base font-bold text-slate-800 uppercase tracking-wide">Out for Delivery (Waiting Runner Confirmation)</h2>
+                <span class="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-bold">Awaiting POSpad Delivery Confirmation</span>
+            </div>
+            <div id="outForDeliveryContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <!-- TAB 2: New Walk-in Order -->
+    <div id="section-neworder" class="space-y-6 hidden h-full">
+        <div class="flex flex-col md:flex-row h-[calc(100vh-140px)] gap-6">
+            <div class="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="flex gap-2 p-3 bg-slate-50 border-b border-slate-200 overflow-x-auto shrink-0">
+                    <button onclick="switchCategory('coffee')" class="cat-btn px-4 py-2 bg-[#005b45] text-white rounded-xl text-sm font-bold shadow-sm transition shrink-0">Coffee</button>
+                    <button onclick="switchCategory('snacks')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 rounded-xl text-sm font-bold shadow-sm transition shrink-0 border border-slate-200">Snacks</button>
+                    <button onclick="switchCategory('drinks')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 rounded-xl text-sm font-bold shadow-sm transition shrink-0 border border-slate-200">Drinks</button>
+                    <button onclick="switchCategory('food')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 rounded-xl text-sm font-bold shadow-sm transition shrink-0 border border-slate-200">Food</button>
+                    <button onclick="switchCategory('all')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 rounded-xl text-sm font-bold shadow-sm transition shrink-0 border border-slate-200">All Items</button>
+                </div>
+                <div class="flex-1 p-4 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 content-start" id="walkInProductGrid"></div>
+            </div>
+
+            <div class="w-full md:w-[420px] bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden shrink-0">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3 shrink-0">
+                    <h2 class="text-sm font-bold text-[#005b45] uppercase tracking-wider">Walk-in Order & Checkout</h2>
+                    <input type="text" id="walkInCustomerName" placeholder="Customer Name (e.g. Walk-in Student)" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#005b45] focus:outline-none shadow-sm">
+                    <input type="text" id="walkInLocation" value="Cafe Counter / Pickup" placeholder="Pickup Location" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-600 focus:outline-none">
+                </div>
+                
+                <div class="flex-1 p-4 overflow-y-auto space-y-2.5 bg-white" id="walkInCartContainer">
+                    <div class="text-center py-12 text-slate-400">
+                        <p class="text-sm font-medium">Cart is empty</p>
+                        <p class="text-xs text-slate-400">Tap products to add</p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 border-t border-slate-200 space-y-3 shrink-0">
+                    <div class="flex justify-between text-slate-600 text-sm">
+                        <span>Total Due</span>
+                        <span id="walkInCartTotal" class="font-bold text-[#005b45] text-base">$0.00</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setWalkInPayment('cash')" id="walkInPayCash" class="py-2.5 px-2 bg-[#005b45] text-white rounded-xl text-xs font-bold shadow-sm transition">Cash</button>
+                        <button onclick="setWalkInPayment('eftpos')" id="walkInPayEftpos" class="py-2.5 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition">EFTPOS</button>
+                        <button onclick="setWalkInPayment('later')" id="walkInPayLater" class="py-2.5 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition">Pay Later</button>
+                    </div>
+                    <div id="walkInCashBox" class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-2">
+                        <div class="flex justify-between items-center text-xs font-bold text-amber-800">
+                            <span>Cash Given ($):</span>
+                            <input type="number" id="walkInCashGiven" oninput="calculateWalkInChange()" class="w-24 p-1 text-right bg-white border border-amber-300 rounded-lg text-sm font-bold text-slate-800 focus:outline-none" placeholder="0.00">
+                        </div>
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-700 pt-1 border-t border-amber-200">
+                            <span>Change Due:</span>
+                            <span id="walkInChangeDue" class="text-emerald-600 text-sm font-black">$0.00</span>
+                        </div>
+                    </div>
+                    <button onclick="submitWalkInOrder()" class="w-full py-3 bg-[#005b45] hover:bg-emerald-800 text-white rounded-xl text-sm font-bold shadow-lg transition">COMPLETE CAFE ORDER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: Unpaid Orders -->
+    <div id="section-ledger" class="space-y-6 hidden">
+        <div>
+            <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wide">Unpaid Orders & Pay Later Ledger</h2>
+            <p class="text-xs text-slate-500">Track staff members who need to settle up. Take cash payments directly with change calculations.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-bold border-b border-slate-200">
+                    <tr>
+                        <th class="p-4">Customer / Staff</th>
+                        <th class="p-4">Location</th>
+                        <th class="p-4">Items Ordered</th>
+                        <th class="p-4">Total Owed</th>
+                        <th class="p-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ledgerTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 4: All Orders History -->
+    <div id="section-allorders" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wide">Complete Order History</h2>
+                <p class="text-xs text-slate-500">Master log of all completed, delivered, and active orders.</p>
+            </div>
+            <button onclick="clearCompletedOrders()" class="text-xs text-red-600 hover:text-red-800 font-bold bg-red-50 px-3 py-1.5 rounded-lg border border-red-200">Clear Finished Orders</button>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-bold border-b border-slate-200">
+                    <tr>
+                        <th class="p-4">Date / Time</th>
+                        <th class="p-4">Customer</th>
+                        <th class="p-4">Location</th>
+                        <th class="p-4">Items</th>
+                        <th class="p-4">Total</th>
+                        <th class="p-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="allOrdersTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 5: Stock & 86-List -->
+    <div id="section-stock" class="space-y-6 hidden">
+        <div>
+            <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wide">Menu Stock Toggles (86-List)</h2>
+            <p class="text-xs text-slate-500">Uncheck an item to instantly mark it as sold out across all connected ordering apps.</p>
+        </div>
+        <div id="stockGridContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    </div>
+
+    <!-- TAB 6: Product Manager -->
+    <div id="section-menu" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wide">Master Product Manager</h2>
+                <p class="text-xs text-slate-500">Add new items on the fly, edit prices, or upload local product images.</p>
+            </div>
+            <button onclick="openProductModal()" class="px-4 py-2 bg-[#005b45] hover:bg-[#004736] text-white font-bold text-sm rounded-xl shadow">+ Add New Product</button>
+        </div>
+        <div id="productManagerGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    </div>
+</main>
+
+<!-- Modals -->
+<div id="cashModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 space-y-4">
+        <h3 class="text-lg font-bold text-[#005b45]">Take Cash Payment</h3>
+        <input type="hidden" id="cashModalOrderId">
+        <div class="space-y-2 text-sm">
+            <div class="flex justify-between text-slate-600"><span>Customer:</span><span id="cashModalCustomer" class="font-bold text-slate-800"></span></div>
+            <div class="flex justify-between text-slate-600"><span>Total Owed:</span><span id="cashModalTotal" class="font-bold text-emerald-600"></span></div>
+        </div>
+        <div class="space-y-1 pt-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase">Cash Given ($)</label>
+            <input type="number" id="cashModalGiven" oninput="calculateLedgerChange()" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#005b45]" placeholder="0.00">
+        </div>
+        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 flex justify-between items-center text-xs font-bold">
+            <span class="text-amber-800">Change Due:</span>
+            <span id="cashModalChange" class="text-emerald-600 text-base font-black">$0.00</span>
+        </div>
+        <div class="flex gap-2 pt-2">
+            <button onclick="closeCashModal()" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+            <button onclick="completeCashPayment()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow">Complete & Mark Paid</button>
+        </div>
+    </div>
+</div>
+
+<div id="coffeeModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 space-y-4">
+        <h3 class="text-lg font-bold text-[#005b45]" id="modalCoffeeTitle">Customize Coffee</h3>
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Shot Type</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="selectShotType('Short')" id="shotShort" class="py-2 bg-[#005b45] text-white rounded-xl text-xs font-bold transition">Short</button>
+                    <button onclick="selectShotType('Long')" id="shotLong" class="py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition">Long</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Size & Price</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="selectCoffeeSize('Small', 2.50)" id="sizeSm" class="py-2 bg-[#005b45] text-white rounded-xl text-xs font-bold transition">Small ($2.50)</button>
+                    <button onclick="selectCoffeeSize('Med/Large', 3.50)" id="sizeMed" class="py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition">Med/Large ($3.50)</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Milk Choice</label>
+                <select id="coffeeMilk" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium">
+                    <option value="Full Cream">Full Cream</option>
+                    <option value="Light Milk">Light Milk</option>
+                    <option value="Skim Milk">Skim Milk</option>
+                    <option value="Oat">Oat</option>
+                    <option value="Soy">Soy</option>
+                    <option value="Almond">Almond</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Notes</label>
+                <input type="text" id="coffeeNotes" placeholder="e.g. Extra hot" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+            </div>
+        </div>
+        <div class="flex gap-2 pt-2">
+            <button onclick="closeCoffeeModal()" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+            <button onclick="confirmCoffeeAdd()" class="flex-1 py-2.5 bg-[#005b45] text-white rounded-xl text-xs font-bold shadow">Add to Cart</button>
+        </div>
+    </div>
+</div>
+
+<div id="productModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4">
+        <h3 id="modalTitle" class="text-xl font-bold text-[#005b45]">Add New Product</h3>
+        <input type="hidden" id="editProductId">
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Product Name</label>
+                <input type="text" id="prodNameInput" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#005b45] focus:outline-none" placeholder="e.g. Special Berry Muffin">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Category</label>
+                    <select id="prodCategoryInput" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#005b45] focus:outline-none">
+                        <option value="coffee">Coffee</option>
+                        <option value="snacks">Snacks</option>
+                        <option value="drinks">Drinks</option>
+                        <option value="food">Food</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Price ($)</label>
+                    <input type="number" step="0.50" id="prodPriceInput" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#005b45] focus:outline-none" placeholder="3.50">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Product Image (JPG/PNG)</label>
+                <input type="file" id="prodImageFile" accept="image/*" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium">
+            </div>
+        </div>
+        <div class="flex gap-3 pt-2">
+            <button onclick="closeProductModal()" class="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-sm transition-colors">Cancel</button>
+            <button onclick="saveProduct()" class="flex-1 py-2.5 bg-[#005b45] hover:bg-[#004736] text-white rounded-xl font-bold text-sm transition-colors shadow">Save Product</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dynamic API Endpoint configuration for Local vs Cloud (Render)
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:8000'
+        : window.location.origin;
+
+    function playAlertChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc1 = ctx.createOscillator();
+            const gain1 = ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(523.25, ctx.currentTime);
+            gain1.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start();
+            osc1.stop(ctx.currentTime + 0.3);
+
+            setTimeout(() => {
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(659.25, ctx.currentTime);
+                osc2.frequency.setValueAtTime(783.99, ctx.currentTime + 0.1);
+                gain2.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start();
+                osc2.stop(ctx.currentTime + 0.5);
+            }, 150);
+        } catch(e) {}
+    }
+
+    let masterProducts = [
+        { id: 'c1', name: 'Long Black Coffee', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c2', name: 'Short Black Coffee', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c3', name: 'Flat White', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c4', name: 'Long Macchiato', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c5', name: 'Short Macchiato', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c6', name: 'Latte', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c7', name: 'Cappuccino', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c8', name: 'Mocha', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c9', name: 'Iced Coffee', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c10', name: 'Affogato', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 'c11', name: 'Piccolo', category: 'coffee', price: 2.50, inStock: true, image: '' },
+        { id: 't1', name: 'Caramel Slice', category: 'snacks', price: 3.00, inStock: true, image: '' },
+        { id: 't2', name: 'Lemon Slice', category: 'snacks', price: 3.00, inStock: true, image: '' },
+        { id: 't3', name: 'Hedgehog Slice', category: 'snacks', price: 3.00, inStock: true, image: '' },
+        { id: 't4', name: 'Melting Moments', category: 'snacks', price: 3.00, inStock: true, image: '' },
+        { id: 't5', name: 'Yoghurt Pots with Berries and Honey', category: 'snacks', price: 4.00, inStock: true, image: '' },
+        { id: 'd1', name: 'Hudson Lemonade', category: 'drinks', price: 2.50, inStock: true, image: '' },
+        { id: 'd2', name: 'Orange Sunrise', category: 'drinks', price: 2.50, inStock: true, image: '' },
+        { id: 'm1', name: 'Chocolate Milkshake', category: 'drinks', price: 3.50, inStock: true, image: '' },
+        { id: 'm2', name: 'Caramel Milkshake', category: 'drinks', price: 3.50, inStock: true, image: '' },
+        { id: 'm3', name: 'Strawberry Milkshake', category: 'drinks', price: 3.50, inStock: true, image: '' },
+        { id: 's1', name: 'Bahn Mi with Chicken', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 's2', name: 'Bahn Mi with Crispy Pork', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 's3', name: 'Reuben Sandwich', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 's4', name: 'Cuban Sandwich', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 's5', name: "Bellingham's Club Sandwich", category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 's6', name: "Mbappe's Croque Monsieur", category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 's7', name: 'Egg Sandwich', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 'w1', name: 'Chicken Caesar Wrap', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 'w2', name: 'Tandoori Chicken Wrap', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 'ds1', name: 'Butter Chicken with Rice', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 'ds2', name: 'Chicken Biryani with Rice', category: 'food', price: 7.00, inStock: true, image: '' },
+        { id: 'ds3', name: 'Pumpkin Soup', category: 'food', price: 5.00, inStock: true, image: '' },
+        { id: 'ds4', name: 'Thai Chicken and Pumpkin Soup', category: 'food', price: 5.00, inStock: true, image: '' }
+    ];
+
+    let orders = [];
+    let lastKnownOrderCount = 0;
+    let walkInCart = [];
+    let walkInPayment = 'cash';
+    let activeCategory = 'coffee';
+    let currentCoffeeItem = null;
+    let selectedShotType = 'Short';
+    let selectedCoffeeSizeName = 'Small';
+    let selectedCoffeePrice = 2.50;
+
+    window.onload = async function() {
+        await loadFromServer();
+        renderAll();
+        
+        // Poll Python backend server every 1 second for live updates
+        setInterval(pollUpdates, 1000);
+        setInterval(checkHeartbeat, 2000);
+    };
+
+    // Load data from Python server API
+    async function loadFromServer() {
+        try {
+            const res = await fetch(`${API_BASE}/api/orders`);
+            const data = await res.json();
+            if (data.products && data.products.length > 0) {
+                masterProducts = data.products;
+            }
+            if (data.orders) {
+                orders = data.orders;
+                lastKnownOrderCount = orders.length;
+            }
+        } catch (e) {
+            console.error("Failed to load from server:", e);
+        }
+    }
+
+    // Save and sync data to Python server backend
+    async function saveAndSync() {
+        try {
+            await fetch(`${API_BASE}/api/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orders: orders, products: masterProducts })
+            });
+            renderAll();
+        } catch (e) {
+            console.error("Failed to save to server:", e);
+        }
+    }
+
+    // Heartbeat Monitor
+    function checkHeartbeat() {
+        const indicator = document.getElementById('connectionIndicator');
+        const dot = document.getElementById('connectionDot');
+        const text = document.getElementById('connectionText');
+
+        fetch(`${API_BASE}/api/orders`)
+            .then(res => {
+                if (res.ok) {
+                    indicator.className = "flex items-center gap-2 bg-emerald-900/60 border border-emerald-500/50 px-3 py-1 rounded-full text-xs font-semibold text-emerald-200 transition-all";
+                    dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse";
+                    text.innerText = "Server Connected";
+                } else {
+                    throw new Error();
+                }
+            })
+            .catch(() => {
+                indicator.className = "flex items-center gap-2 bg-red-900/60 border border-red-500/50 px-3 py-1 rounded-full text-xs font-semibold text-red-200 transition-all";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-red-400";
+                text.innerText = "Server Disconnected";
+            });
+    }
+
+    function switchTab(tab) {
+        ['live', 'neworder', 'ledger', 'allorders', 'stock', 'menu'].forEach(t => {
+            const el = document.getElementById(`section-${t}`);
+            if (el) el.classList.add('hidden');
+            const btn = document.getElementById(`tab-${t}`);
+            if (btn) btn.className = "px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10";
+        });
+        document.getElementById(`section-${tab}`).classList.remove('hidden');
+        document.getElementById(`tab-${tab}`).className = "px-3.5 py-2 rounded-lg font-bold text-xs transition-all bg-white text-[#005b45] shadow";
+        if (tab === 'allorders') renderAllOrdersTable();
+        if (tab === 'neworder') renderWalkInProducts(activeCategory);
+    }
+
+    function switchCategory(cat) {
+        activeCategory = cat;
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.classList.remove('bg-[#005b45]', 'text-white');
+            btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        });
+        event.target.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        event.target.classList.add('bg-[#005b45]', 'text-white');
+        renderWalkInProducts(cat);
+    }
+
+    function renderWalkInProducts(cat) {
+        const grid = document.getElementById('walkInProductGrid');
+        grid.innerHTML = '';
+        const filtered = (cat === 'all' ? masterProducts : masterProducts.filter(p => (p.category || '').toLowerCase() === cat)).filter(p => p.inStock !== false);
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400">No items available in this category.</div>`;
+            return;
+        }
+
+        filtered.forEach(prod => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-2xl p-3 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group';
+            card.onclick = () => handleWalkInProductClick(prod);
+            const imgSrc = prod.image ? prod.image : `https://placehold.co/150x150/005b45/ffffff?text=${encodeURIComponent(prod.name)}`;
+
+            card.innerHTML = `
+                <div>
+                    <div class="w-full h-24 bg-slate-100 rounded-xl overflow-hidden mb-2 relative">
+                        <img src="${imgSrc}" class="w-full h-full object-cover group-hover:scale-105 transition">
+                        <span class="absolute top-2 right-2 bg-[#005b45] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">$${prod.price.toFixed(2)}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-xs line-clamp-2">${prod.name}</h4>
+                </div>
+                <div class="mt-2 text-right"><span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">Tap to Add</span></div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function handleWalkInProductClick(prod) {
+        const isCoffee = prod.category === 'coffee' || prod.name.toLowerCase().includes('coffee') || prod.name.toLowerCase().includes('latte') || prod.name.toLowerCase().includes('cappuccino') || prod.name.toLowerCase().includes('flat white');
+        if (isCoffee) {
+            currentCoffeeItem = prod;
+            selectedShotType = 'Short';
+            selectedCoffeeSizeName = 'Small';
+            selectedCoffeePrice = 2.50;
+            document.getElementById('modalCoffeeTitle').innerText = `Customize: ${prod.name}`;
+            document.getElementById('coffeeModal').classList.remove('hidden');
+        } else {
+            walkInCart.push({ id: prod.id, name: prod.name, price: prod.price, details: '', notes: '' });
+            updateWalkInCartUI();
+        }
+    }
+
+    function selectShotType(shot) {
+        selectedShotType = shot;
+        document.getElementById('shotShort').className = shot === 'Short' ? 'py-2 bg-[#005b45] text-white rounded-xl text-xs font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition';
+        document.getElementById('shotLong').className = shot === 'Long' ? 'py-2 bg-[#005b45] text-white rounded-xl text-xs font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition';
+    }
+
+    function selectCoffeeSize(size, price) {
+        selectedCoffeeSizeName = size;
+        selectedCoffeePrice = price;
+        document.getElementById('sizeSm').className = size === 'Small' ? 'py-2 bg-[#005b45] text-white rounded-xl text-xs font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition';
+        document.getElementById('sizeMed').className = size !== 'Small' ? 'py-2 bg-[#005b45] text-white rounded-xl text-xs font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition';
+    }
+
+    function closeCoffeeModal() {
+        document.getElementById('coffeeModal').classList.add('hidden');
+        currentCoffeeItem = null;
+    }
+
+    function confirmCoffeeAdd() {
+        if (!currentCoffeeItem) return;
+        const milk = document.getElementById('coffeeMilk').value;
+        const notes = document.getElementById('coffeeNotes').value;
+        walkInCart.push({
+            id: currentCoffeeItem.id + '-' + Date.now(),
+            name: currentCoffeeItem.name,
+            price: selectedCoffeePrice,
+            details: `${selectedShotType} Shot, ${selectedCoffeeSizeName}, ${milk} Milk`,
+            notes: notes
+        });
+        closeCoffeeModal();
+        updateWalkInCartUI();
+    }
+
+    function updateWalkInCartUI() {
+        const container = document.getElementById('walkInCartContainer');
+        container.innerHTML = '';
+        if (walkInCart.length === 0) {
+            container.innerHTML = `<div class="text-center py-12 text-slate-400"><p class="text-sm font-medium">Cart is empty</p><p class="text-xs">Tap products to add</p></div>`;
+            document.getElementById('walkInCartTotal').innerText = '$0.00';
+            return;
+        }
+        let total = 0;
+        walkInCart.forEach((item, idx) => {
+            total += item.price;
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs';
+            div.innerHTML = `
+                <div class="flex-1 pr-2"><div class="font-bold text-slate-800">${item.name}</div>${item.details ? `<div class="text-slate-500">${item.details}</div>` : ''}</div>
+                <div class="font-bold text-slate-700 mr-2">$${item.price.toFixed(2)}</div>
+                <button onclick="walkInCart.splice(${idx},1); updateWalkInCartUI();" class="text-red-400 font-bold">&times;</button>
+            `;
+            container.appendChild(div);
+        });
+        document.getElementById('walkInCartTotal').innerText = `$${total.toFixed(2)}`;
+        if (walkInPayment === 'cash') calculateWalkInChange();
+    }
+
+    function setWalkInPayment(method) {
+        walkInPayment = method;
+        ['cash', 'eftpos', 'later'].forEach(m => {
+            const btn = document.getElementById(`walkInPay${m.charAt(0).toUpperCase() + m.slice(1)}`);
+            btn.className = m === method ? 'py-2.5 px-2 bg-[#005b45] text-white rounded-xl text-xs font-bold shadow-sm transition' : 'py-2.5 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition';
+        });
+        const cashBox = document.getElementById('walkInCashBox');
+        if (method === 'cash') { cashBox.classList.remove('hidden'); calculateWalkInChange(); } else { cashBox.classList.add('hidden'); }
+    }
+
+    function calculateWalkInChange() {
+        const total = walkInCart.reduce((sum, item) => sum + item.price, 0);
+        const given = parseFloat(document.getElementById('walkInCashGiven').value) || 0;
+        const change = given - total;
+        const changeEl = document.getElementById('walkInChangeDue');
+        if (change >= 0) { changeEl.innerText = `$${change.toFixed(2)}`; changeEl.className = 'text-emerald-600 text-sm font-black'; }
+        else { changeEl.innerText = `Short $${Math.abs(change).toFixed(2)}`; changeEl.className = 'text-red-500 text-sm font-black'; }
+    }
+
+    function submitWalkInOrder() {
+        const name = document.getElementById('walkInCustomerName').value.trim() || 'Walk-in Customer';
+        if (walkInCart.length === 0) { alert("Cart is empty."); return; }
+        const total = walkInCart.reduce((sum, item) => sum + item.price, 0);
+        const paymentStr = walkInPayment === 'cash' ? 'Paid (Cash)' : walkInPayment === 'eftpos' ? 'Paid (EFTPOS)' : 'Unpaid (Pay Later)';
+
+        const newOrder = {
+            id: Date.now(),
+            customer: name,
+            location: document.getElementById('walkInLocation').value || 'Cafe Counter',
+            items: walkInCart.map(i => `${i.name} ${i.details ? '('+i.details+')' : ''}`).join(', '),
+            total: total,
+            payment: paymentStr,
+            status: 'New',
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        orders.unshift(newOrder);
+        walkInCart = [];
+        document.getElementById('walkInCustomerName').value = '';
+        updateWalkInCartUI();
+        saveAndSync();
+        switchTab('live');
+        alert("Walk-in order created successfully!");
+    }
+
+    function renderAll() {
+        renderLiveOrders();
+        renderLedger();
+        renderAllOrdersTable();
+        renderStockGrid();
+        renderProductManager();
+        updateCounts();
+    }
+
+    function updateCounts() {
+        document.getElementById('liveCount').innerText = orders.filter(o => o.status !== 'Delivered').length;
+        document.getElementById('ledgerCount').innerText = orders.filter(o => o.payment.includes('Unpaid')).length;
+    }
+
+    function renderLiveOrders() {
+        const activeContainer = document.getElementById('activeKitchenContainer');
+        const deliveryContainer = document.getElementById('outForDeliveryContainer');
+
+        const activeOrders = orders.filter(o => o.status === 'New' || o.status === 'In Progress');
+        const outForDeliveryOrders = orders.filter(o => o.status === 'Out for Delivery');
+
+        activeContainer.innerHTML = activeOrders.length === 0 ? `<div class="col-span-full py-10 text-center text-slate-400 font-medium bg-white rounded-2xl border border-slate-200">No active kitchen orders right now.</div>` : activeOrders.map(o => `
+            <div class="bg-white rounded-2xl p-5 shadow-md border-2 ${o.status === 'New' ? 'border-emerald-500 new-order-flash' : 'border-slate-200'} flex flex-col justify-between gap-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full ${o.status === 'New' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">${o.status}</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2">${o.customer}</h3>
+                        <p class="text-xs font-bold text-[#005b45] bg-[#005b45]/10 px-2 py-0.5 rounded inline-block mt-1">Location: ${o.location}</p>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400">${o.time}</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm font-medium text-slate-700">${o.items}</div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <span class="text-xs font-bold text-slate-500">Payment: <span class="text-slate-800">${o.payment}</span></span>
+                    <div class="flex gap-2">
+                        ${o.status === 'New' ? `<button onclick="updateOrderStatus(${o.id}, 'In Progress')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow">Start Cooking</button>` : ''}
+                        <button onclick="updateOrderStatus(${o.id}, 'Out for Delivery')" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow">Send Out for Delivery</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        deliveryContainer.innerHTML = outForDeliveryOrders.length === 0 ? `<div class="col-span-full py-10 text-center text-slate-400 font-medium bg-white rounded-2xl border border-slate-200">No orders currently out for delivery.</div>` : outForDeliveryOrders.map(o => `
+            <div class="bg-white rounded-2xl p-5 shadow-md border-2 border-blue-300 flex flex-col justify-between gap-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">Out for Delivery</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2">${o.customer}</h3>
+                        <p class="text-xs font-bold text-[#005b45] bg-[#005b45]/10 px-2 py-0.5 rounded inline-block mt-1">Location: ${o.location}</p>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400">${o.time}</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm font-medium text-slate-700">${o.items}</div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500 font-bold">
+                    <span>Waiting for POSpad Runner Confirmation...</span>
+                    <span class="text-emerald-600">$${o.total.toFixed(2)}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderLedger() {
+        const tbody = document.getElementById('ledgerTableBody');
+        const unpaidOrders = orders.filter(o => o.payment.includes('Unpaid'));
+        if (unpaidOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No outstanding unpaid orders. All clear!</td></tr>`; return; }
+        tbody.innerHTML = unpaidOrders.map(o => `
+            <tr class="hover:bg-slate-50">
+                <td class="p-4 font-bold text-slate-800">${o.customer}</td>
+                <td class="p-4 text-slate-600">${o.location}</td>
+                <td class="p-4 text-slate-600 text-xs">${o.items}</td>
+                <td class="p-4 font-bold text-emerald-600">$${o.total.toFixed(2)}</td>
+                <td class="p-4 flex gap-2">
+                    <button onclick="markOrderPaid(${o.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow">Mark Paid (EFTPOS)</button>
+                    <button onclick="openCashModal(${o.id})" class="px-3 py-1.5 bg-[#ffb612] hover:bg-amber-400 text-[#005b45] font-bold text-xs rounded-lg shadow">Take Cash</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function openCashModal(id) {
+        const order = orders.find(o => o.id === id);
+        if (order) {
+            document.getElementById('cashModalOrderId').value = order.id;
+            document.getElementById('cashModalCustomer').innerText = order.customer;
+            document.getElementById('cashModalTotal').innerText = `$${order.total.toFixed(2)}`;
+            document.getElementById('cashModalGiven').value = '';
+            document.getElementById('cashModalChange').innerText = '$0.00';
+            document.getElementById('cashModal').classList.remove('hidden');
+        }
+    }
+
+    function closeCashModal() { document.getElementById('cashModal').classList.add('hidden'); }
+
+    function calculateLedgerChange() {
+        const id = parseInt(document.getElementById('cashModalOrderId').value);
+        const order = orders.find(o => o.id === id);
+        if (!order) return;
+        const given = parseFloat(document.getElementById('cashModalGiven').value) || 0;
+        const change = given - order.total;
+        const changeEl = document.getElementById('cashModalChange');
+        if (change >= 0) { changeEl.innerText = `$${change.toFixed(2)}`; changeEl.className = 'text-emerald-600 text-base font-black'; }
+        else { changeEl.innerText = `Short $${Math.abs(change).toFixed(2)}`; changeEl.className = 'text-red-500 text-base font-black'; }
+    }
+
+    function completeCashPayment() {
+        const id = parseInt(document.getElementById('cashModalOrderId').value);
+        const given = parseFloat(document.getElementById('cashModalGiven').value) || 0;
+        const order = orders.find(o => o.id === id);
+        if (order && given >= order.total) { order.payment = "Paid (Cash)"; saveAndSync(); closeCashModal(); }
+        else { alert("Insufficient cash given."); }
+    }
+
+    function renderAllOrdersTable() {
+        const tbody = document.getElementById('allOrdersTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = orders.length === 0 ? `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-medium">No orders recorded yet.</td></tr>` : orders.map(o => `
+            <tr class="hover:bg-slate-50">
+                <td class="p-4 text-slate-500 text-xs">${o.date || 'Today'} - ${o.time}</td>
+                <td class="p-4 font-bold text-slate-800">${o.customer}</td>
+                <td class="p-4 text-slate-600">${o.location}</td>
+                <td class="p-4 text-slate-600 text-xs">${o.items}</td>
+                <td class="p-4 font-bold text-emerald-600">$${o.total.toFixed(2)}</td>
+                <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${o.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${o.status}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    function renderStockGrid() {
+        const container = document.getElementById('stockGridContainer');
+        container.innerHTML = masterProducts.map(p => `
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold text-slate-800 text-sm">${p.name}</h4>
+                    <span class="text-xs text-slate-400">${p.category} • $${p.price.toFixed(2)}</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" ${p.inStock ? 'checked' : ''} onchange="toggleStock('${p.id}')" class="sr-only peer">
+                    <div class="w-11 h-6 bg-red-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+            </div>
+        `).join('');
+    }
+
+    function renderProductManager() {
+        const container = document.getElementById('productManagerGrid');
+        container.innerHTML = masterProducts.map(p => `
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between gap-3">
+                <div>
+                    <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${p.category}</span>
+                    <h4 class="font-bold text-slate-800 text-sm mt-1">${p.name}</h4>
+                    <p class="text-xs font-bold text-[#005b45] mt-0.5">$${p.price.toFixed(2)}</p>
+                </div>
+                <div class="flex gap-2 pt-2 border-t border-slate-100">
+                    <button onclick="editProduct('${p.id}')" class="flex-1 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg">Edit</button>
+                    <button onclick="deleteProduct('${p.id}')" class="py-1 px-2.5 bg-red-50 text-red-600 text-xs font-bold rounded-lg">Delete</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateOrderStatus(id, newStatus) {
+        const order = orders.find(o => o.id === id);
+        if (order) { order.status = newStatus; saveAndSync(); }
+    }
+
+    function markOrderPaid(id) {
+        const order = orders.find(o => o.id === id);
+        if (order) { order.payment = "Paid (EFTPOS)"; saveAndSync(); }
+    }
+
+    function toggleStock(id) {
+        const product = masterProducts.find(p => p.id === id);
+        if (product) { product.inStock = !product.inStock; saveAndSync(); }
+    }
+
+    function toggleCafeStatus() {
+        const isOpen = document.getElementById('cafeToggle').checked;
+        document.getElementById('statusLabel').innerText = isOpen ? "Cafe Open" : "Cafe Closed";
+    }
+
+    function clearCompletedOrders() {
+        orders = orders.filter(o => o.status !== 'Delivered');
+        saveAndSync();
+    }
+
+    function openProductModal() {
+        document.getElementById('modalTitle').innerText = "Add New Product";
+        document.getElementById('editProductId').value = "";
+        document.getElementById('prodNameInput').value = "";
+        document.getElementById('prodPriceInput').value = "";
+        document.getElementById('prodImageFile').value = "";
+        document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    function editProduct(id) {
+        const p = masterProducts.find(prod => prod.id == id);
+        if (p) {
+            document.getElementById('modalTitle').innerText = "Edit Product";
+            document.getElementById('editProductId').value = p.id;
+            document.getElementById('prodNameInput').value = p.name;
+            document.getElementById('prodCategoryInput').value = p.category;
+            document.getElementById('prodPriceInput').value = p.price;
+            document.getElementById('prodImageFile').value = "";
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+    }
+
+    function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
+
+    function saveProduct() {
+        const editId = document.getElementById('editProductId').value;
+        const name = document.getElementById('prodNameInput').value.trim();
+        const category = document.getElementById('prodCategoryInput').value;
+        const price = parseFloat(document.getElementById('prodPriceInput').value);
+        const imageFileInput = document.getElementById('prodImageFile');
+
+        if (!name || isNaN(price)) { alert("Provide a valid name and price."); return; }
+
+        const finishSave = (base64Image) => {
+            if (editId) {
+                const p = masterProducts.find(prod => prod.id == editId);
+                if (p) {
+                    p.name = name;
+                    p.category = category;
+                    p.price = price;
+                    if (base64Image) p.image = base64Image;
+                }
+            } else {
+                masterProducts.push({
+                    id: 'prod-' + Date.now(),
+                    name,
+                    category,
+                    price,
+                    inStock: true,
+                    image: base64Image || ''
+                });
+            }
+            closeProductModal();
+            saveAndSync();
+        };
+
+        if (imageFileInput.files && imageFileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) { finishSave(e.target.result); };
+            reader.readAsDataURL(imageFileInput.files[0]);
+        } else {
+            finishSave(null);
+        }
+    }
+
+    function deleteProduct(id) {
+        if (confirm("Delete product?")) {
+            masterProducts = masterProducts.filter(p => p.id !== id);
+            saveAndSync();
+        }
+    }
+
+    async function pollUpdates() {
+        try {
+            const res = await fetch(`${API_BASE}/api/orders`);
+            const data = await res.json();
+            const parsedOrders = data.orders || [];
+            
+            if (parsedOrders.length > lastKnownOrderCount) {
+                playAlertChime();
+                lastKnownOrderCount = parsedOrders.length;
+                orders = parsedOrders;
+                if (data.products) masterProducts = data.products;
+                renderAll();
+            } else if (JSON.stringify(parsedOrders) !== JSON.stringify(orders)) {
+                orders = parsedOrders;
+                lastKnownOrderCount = parsedOrders.length;
+                if (data.products) masterProducts = data.products;
+                renderAll();
+            }
+        } catch (e) {
+            console.error("Polling error:", e);
+        }
+    }
+
+    function exportOrders() {
+        let csv = "Date,Time,Customer,Location,Items,Total,Payment,Status\n";
+        orders.forEach(o => {
+            csv += `"${o.date || 'Today'}","${o.time}","${o.customer}","${o.location}","${o.items}",${o.total},"${o.payment}","${o.status}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'orderup_sales_export.csv');
+        a.click();
+    }
+</script>
+</body>
+</html>

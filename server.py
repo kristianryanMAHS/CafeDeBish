@@ -29,10 +29,16 @@ class CafeHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 data = json.dumps({"orders": [], "products": []})
             self.wfile.write(data.encode("utf-8"))
+            return
             
         # Default root URL loads OrderUp.html automatically
         elif parsed_path.path == "/" or parsed_path.path == "":
             self.path = "/OrderUp.html"
+            return super().do_GET()
+            
+        # Explicit route for POSpad to prevent mobile timeout/routing issues
+        elif parsed_path.path.lower() == "/pospad.html":
+            self.path = "/POSpad.html"
             return super().do_GET()
             
         # Serve static HTML/JS/CSS files normally
@@ -42,7 +48,6 @@ class CafeHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         parsed_path = urllib.parse.urlparse(self.path)
         
-        # API endpoint to save orders and update catalog items
         if parsed_path.path == "/api/orders":
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length)
@@ -67,7 +72,6 @@ class CafeHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
     def do_OPTIONS(self):
-        # Handle CORS preflight requests
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")

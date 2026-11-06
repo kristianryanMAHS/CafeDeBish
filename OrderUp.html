@@ -422,6 +422,11 @@
                 orders = data.orders;
                 lastKnownOrderCount = orders.length;
             }
+            if (data.cafeOpen !== undefined) {
+                const toggle = document.getElementById('cafeToggle');
+                toggle.checked = data.cafeOpen;
+                document.getElementById('statusLabel').innerText = data.cafeOpen ? "Cafe Open" : "Cafe Closed";
+            }
         } catch (e) {
             console.error("Failed to load from server:", e);
         }
@@ -430,10 +435,11 @@
     // Save and sync data to Python server backend
     async function saveAndSync() {
         try {
+            const isOpen = document.getElementById('cafeToggle').checked;
             await fetch(`${API_BASE}/api/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orders: orders, products: masterProducts })
+                body: JSON.stringify({ orders: orders, products: masterProducts, cafeOpen: isOpen })
             });
             renderAll();
         } catch (e) {
@@ -811,9 +817,26 @@
         if (product) { product.inStock = !product.inStock; saveAndSync(); }
     }
 
-    function toggleCafeStatus() {
+    async function toggleCafeStatus() {
         const isOpen = document.getElementById('cafeToggle').checked;
         document.getElementById('statusLabel').innerText = isOpen ? "Cafe Open" : "Cafe Closed";
+        
+        try {
+            const res = await fetch(`${API_BASE}/api/orders`);
+            const data = await res.json();
+            
+            await fetch(`${API_BASE}/api/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    orders: data.orders || orders, 
+                    products: masterProducts, 
+                    cafeOpen: isOpen 
+                })
+            });
+        } catch (e) {
+            console.error("Failed to update cafe status on server:", e);
+        }
     }
 
     function clearCompletedOrders() {
@@ -904,6 +927,13 @@
                 lastKnownOrderCount = parsedOrders.length;
                 orders = parsedOrders;
                 if (data.products) masterProducts = data.products;
+                if (data.cafeOpen !== undefined) {
+                    const toggle = document.getElementById('cafeToggle');
+                    if(toggle.checked !== data.cafeOpen) {
+                        toggle.checked = data.cafeOpen;
+                        document.getElementById('statusLabel').innerText = data.cafeOpen ? "Cafe Open" : "Cafe Closed";
+                    }
+                }
                 renderAll();
             } else if (JSON.stringify(parsedOrders) !== JSON.stringify(orders)) {
                 orders = parsedOrders;

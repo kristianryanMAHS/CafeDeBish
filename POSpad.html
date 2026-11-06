@@ -101,7 +101,7 @@
                 <button onclick="setPaymentMethod('eftpos')" id="payBtnEftpos" class="py-2.5 px-2 bg-[#005b45] text-white rounded-xl text-xs font-bold shadow-sm transition">EFTPOS Paid</button>
                 <button onclick="setPaymentMethod('later')" id="payBtnLater" class="py-2.5 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition">Pay Later</button>
             </div>
-            <button onclick="submitOrder()" class="w-full py-3.5 bg-[#005b45] hover:bg-emerald-800 text-white rounded-xl text-base font-bold shadow-lg shadow-emerald-900/25 transition">SUBMIT ORDER TO KITCHEN</button>
+            <button onclick="submitOrder()" id="submitOrderBtn" class="w-full py-3.5 bg-[#005b45] hover:bg-emerald-800 text-white rounded-xl text-base font-bold shadow-lg shadow-emerald-900/25 transition">SUBMIT ORDER TO KITCHEN</button>
         </div>
     </div>
 
@@ -249,7 +249,7 @@
             renderProducts(activeCategory);
             updateCartUI();
 
-            // Background Poll loop for catalog and deliveries
+            // Background Poll loop for catalog, deliveries, and Cafe Open/Closed status
             setInterval(async () => {
                 await syncCatalogFromServer();
                 if (!document.getElementById('workspace-delivering').classList.contains('hidden')) {
@@ -262,6 +262,26 @@
             try {
                 const res = await fetch(`${API_BASE}/api/orders`);
                 const data = await res.json();
+                
+                // --- CAFE OPEN/CLOSED STATUS CHECK ---
+                const isCafeOpen = data.cafeOpen !== undefined ? data.cafeOpen : true;
+                const submitBtn = document.getElementById('submitOrderBtn');
+                
+                if (!isCafeOpen) {
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.className = "w-full py-3.5 bg-slate-400 text-white rounded-xl text-base font-bold cursor-not-allowed transition";
+                        submitBtn.innerText = "CAFE IS CURRENTLY CLOSED";
+                    }
+                } else {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.className = "w-full py-3.5 bg-[#005b45] hover:bg-emerald-800 text-white rounded-xl text-base font-bold shadow-lg shadow-emerald-900/25 transition";
+                        submitBtn.innerText = "SUBMIT ORDER TO KITCHEN";
+                    }
+                }
+                // -------------------------------------
+
                 if (data.products && data.products.length > 0) {
                     catalog = data.products.map(p => {
                         let cat = (p.category || 'coffee').toLowerCase();
@@ -450,31 +470,37 @@
             if (!customerName) { alert("Please enter the customer's name."); return; }
             if (cart.length === 0) { alert("Please add at least one item to the cart."); return; }
 
-            const location = document.getElementById('customLocationInput').value.trim() || document.getElementById('selectedLocationDisplay').innerText;
-            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
-
-            const newOrder = {
-                id: Date.now(),
-                customer: customerName,
-                location: location,
-                items: cart.map(i => `${i.name} ${i.details ? '('+i.details+')' : ''}`).join(', '),
-                total: subtotal,
-                payment: currentPaymentMethod === 'eftpos' ? 'Portable EFTPOS' : 'Pay Later / Unpaid',
-                status: 'New',
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
-
             try {
-                const res = await fetch(`${API_BASE}/api/orders`);
-                const data = await res.json();
-                let existingOrders = data.orders || [];
+                // Double check server status before submitting
+                const checkRes = await fetch(`${API_BASE}/api/orders`);
+                const checkData = await checkRes.json();
+                if (checkData.cafeOpen === false) {
+                    alert("The cafe is currently closed. Orders cannot be submitted.");
+                    return;
+                }
+
+                const location = document.getElementById('customLocationInput').value.trim() || document.getElementById('selectedLocationDisplay').innerText;
+                const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+
+                const newOrder = {
+                    id: Date.now(),
+                    customer: customerName,
+                    location: location,
+                    items: cart.map(i => `${i.name} ${i.details ? '('+i.details+')' : ''}`).join(', '),
+                    total: subtotal,
+                    payment: currentPaymentMethod === 'eftpos' ? 'Portable EFTPOS' : 'Pay Later / Unpaid',
+                    status: 'New',
+                    date: new Date().toLocaleDateString(),
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+
+                let existingOrders = checkData.orders || [];
                 existingOrders.unshift(newOrder);
 
                 await fetch(`${API_BASE}/api/orders`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orders: existingOrders, products: catalog })
+                    body: JSON.stringify({ orders: existingOrders, products: catalog, cafeOpen: checkData.cafeOpen })
                 });
 
                 cart = [];
@@ -535,7 +561,7 @@
                     await fetch(`${API_BASE}/api/orders`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orders: orders, products: catalog })
+                        body: JSON.stringify({ orders: orders, products: catalog, cafeOpen: data.cafeOpen })
                     });
                     renderDeliveries();
                 }

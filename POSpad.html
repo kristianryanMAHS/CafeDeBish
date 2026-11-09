@@ -2,146 +2,135 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POSpad - Cafe de bish Register</title>
-<!-- PWA Meta Tags for iOS -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="POSpad">
-<link rel="apple-touch-icon" href="crest-icon.png">
-
-<!-- Web App Manifest Link -->
-<link rel="manifest" href="/manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="crest-icon.png" type="image/png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="POSpad">
+    <link rel="apple-touch-icon" href="crest-icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --mahs-green: #005b45; --mahs-gold: #d99b00; }
         body { font-family: 'Inter', sans-serif; background-color: #fdfbf7; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #e2d9c1; border-radius: 3px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #e2d9c5; border-radius: 3px; }
     </style>
 </head>
-<body class="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-amber-50/30">
+<body class="h-screen w-full flex flex-col overflow-hidden bg-[#fdfbf7] text-slate-800">
 
-    <!-- Left Pane: Main Workspace -->
-    <div class="flex-1 flex flex-col h-full overflow-hidden border-r border-amber-200/60 bg-white">
-        <div class="p-4 bg-[#ffb612] text-[#2d2300] flex items-center justify-between shadow-md shrink-0">
-            <div class="flex items-center gap-3">
-                <!-- Mount Austin High School Crest Top Left -->
-                <div class="h-11 w-11 bg-white rounded-xl flex items-center justify-center p-1 shadow border border-amber-300 overflow-hidden shrink-0">
-                    <svg viewBox="0 0 100 110" class="h-full w-full object-contain" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M50 5 L90 20 L90 60 C90 85 50 105 50 105 C50 105 10 85 10 60 L10 20 Z" fill="#005b45" stroke="#ffb612" stroke-width="4"/>
-                        <path d="M50 15 L80 27 L80 58 C80 78 50 95 50 95 C50 95 20 78 20 58 L20 27 Z" fill="#005b45"/>
-                        <path d="M25 45 L50 45 L50 78 L25 78 Z" fill="#ffffff"/>
-                        <path d="M50 45 L75 45 L75 78 L50 78 Z" fill="#005b45"/>
-                    </svg>
+    <!-- Top Header Bar -->
+    <header class="h-20 bg-white border-b border-amber-200/60 px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
+        <div class="flex items-center gap-4">
+            <!-- POSpad Splash Logo (Shield & Green Box Removed) -->
+            <div class="h-16 w-16 flex items-center justify-center shrink-0">
+                <img src="POSpadLogo.png" alt="POSpad Logo" class="h-full w-full object-contain drop-shadow-sm">
+            </div>
+            
+            <div class="flex flex-col">
+                <span class="text-xs font-bold tracking-widest text-amber-600 uppercase">Cafe de bish</span>
+                <h1 class="text-lg font-black tracking-tight text-slate-900">iPad Register</h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div id="connectionIndicator" class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Live Sync Active</span>
+            </div>
+            <button onclick="openActiveOrdersModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition shadow-sm">
+                Active Orders / Delivery Board
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Register Layout -->
+    <main class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
+        
+        <!-- Left 2 Columns: Product Menu & Categories -->
+        <section class="lg:col-span-2 flex flex-col bg-white border border-amber-200/60 rounded-3xl overflow-hidden shadow-sm">
+            <!-- Category Tabs -->
+            <div class="p-4 bg-amber-50/50 border-b border-amber-100 flex gap-2 overflow-x-auto shrink-0">
+                <button onclick="switchCategory('coffee')" class="cat-btn px-4 py-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition shrink-0">Coffee</button>
+                <button onclick="switchCategory('snacks')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60">Snacks</button>
+                <button onclick="switchCategory('drinks')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60">Drinks</button>
+                <button onclick="switchCategory('food')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60">Food</button>
+                <button onclick="switchCategory('all')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60">All Items</button>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="flex-1 p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 content-start" id="productGrid"></div>
+        </section>
+
+        <!-- Right Column: Cart & Checkout -->
+        <section class="flex flex-col bg-white border border-amber-200/60 rounded-3xl overflow-hidden shadow-sm">
+            <div class="p-5 bg-amber-50/50 border-b border-amber-100 space-y-3 shrink-0">
+                <h2 class="font-bold text-sm text-slate-900 uppercase tracking-wide">Current Order</h2>
+                <input type="text" id="customerName" placeholder="Customer Name (e.g. John Doe)" class="w-full p-2.5 bg-white border border-amber-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none shadow-sm">
+                <input type="text" id="customerLocation" placeholder="Delivery Location (e.g. Staff Room / Table 4)" class="w-full p-2.5 bg-white border border-amber-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none shadow-sm">
+            </div>
+
+            <!-- Cart Items List -->
+            <div class="flex-1 p-4 overflow-y-auto space-y-2.5" id="cartContainer">
+                <div class="text-center py-16 text-slate-400">
+                    <p class="text-sm font-medium">Cart is empty</p>
+                    <p class="text-xs text-slate-400 mt-1">Tap items on the left to add</p>
                 </div>
-                <div id="connectionIndicator" class="flex items-center gap-1.5 bg-amber-900/10 border border-amber-600/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-amber-900 inline-flex">
-                    <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
-                    <span>Server Connected</span>
+            </div>
+
+            <!-- Checkout Summary & Actions -->
+            <div class="p-5 bg-amber-50/50 border-t border-amber-100 space-y-4 shrink-0">
+                <div class="flex justify-between items-center text-sm font-bold text-slate-700">
+                    <span>Total Amount</span>
+                    <span id="cartTotal" class="text-amber-600 text-lg font-black">$0.00</span>
                 </div>
-            </div>
 
-            <div class="flex items-center gap-3">
-                <div class="flex gap-1 bg-[#e0a000] p-1 rounded-xl border border-black/5">
-                    <button onclick="switchWorkspace('ordering')" id="ws-ordering" class="px-4 py-1.5 rounded-lg font-bold text-xs transition-all bg-white text-[#2d2300] shadow">Ordering</button>
-                    <button onclick="switchWorkspace('delivering')" id="ws-delivering" class="px-4 py-1.5 rounded-lg font-bold text-xs transition-all text-[#2d2300] hover:bg-white/20">Deliveries & Open Orders</button>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setPayment('cash')" id="payCash" class="py-2 px-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition">Cash</button>
+                    <button onclick="setPayment('eftpos')" id="payEftpos" class="py-2 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-200 rounded-xl text-xs font-bold transition">EFTPOS</button>
+                    <button onclick="setPayment('later')" id="payLater" class="py-2 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-200 rounded-xl text-xs font-bold transition">Pay Later</button>
                 </div>
-                <!-- POSpad Logo Top Right -->
-                <div class="h-10 bg-[#005b45] px-3 rounded-xl flex items-center justify-center shadow border border-black/10 overflow-hidden shrink-0">
-                    <svg viewBox="0 0 160 40" class="h-7 w-auto object-contain" xmlns="http://www.w3.org/2000/svg">
-                        <text x="5" y="30" font-family="Inter, sans-serif" font-weight="900" font-size="28" fill="#ffffff">POS<tspan fill="#ffb612">pad</tspan></text>
-                    </svg>
+
+                <div id="cashBox" class="bg-amber-100/60 p-3 rounded-xl border border-amber-200 space-y-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-amber-900">
+                        <span>Cash Given ($):</span>
+                        <input type="number" id="cashGiven" oninput="calculateChange()" class="w-24 p-1 text-right bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-800 focus:outline-none" placeholder="0.00">
+                    </div>
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-700 pt-1 border-t border-amber-200/60">
+                        <span>Change Due:</span>
+                        <span id="changeDue" class="text-emerald-600 text-xs font-black">$0.00</span>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- ORDERING CATALOG -->
-        <div id="workspace-ordering" class="flex-1 flex flex-col h-full overflow-hidden">
-            <div class="flex gap-2 p-3 bg-amber-50/50 border-b border-amber-100 overflow-x-auto shrink-0">
-                <button onclick="switchCategory('coffee')" class="cat-btn px-4 py-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-sm font-bold shadow-sm transition shrink-0">Coffee</button>
-                <button onclick="switchCategory('snacks')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-100/50 rounded-xl text-sm font-bold shadow-sm transition shrink-0 border border-amber-200">Snacks</button>
-                <button onclick="switchCategory('drinks')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-100/50 rounded-xl text-sm font-bold shadow-sm transition shrink-0 border border-amber-200">Drinks</button>
-                <button onclick="switchCategory('food')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-100/50 rounded-xl text-sm font-bold shadow-sm transition shrink-0 border border-amber-200">Food</button>
-                <button onclick="switchCategory('all')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-100/50 rounded-xl text-sm font-bold shadow-sm transition shrink-0 border border-amber-200">All Items</button>
+                <button onclick="submitOrder()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-md transition">SUBMIT ORDER TO KITCHEN</button>
             </div>
-            <div class="flex-1 p-4 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 content-start" id="productGrid"></div>
-        </div>
+        </section>
 
-        <!-- DELIVERIES & OPEN ORDERS QUEUE -->
-        <div id="workspace-delivering" class="flex-1 flex flex-col h-full overflow-y-auto p-6 bg-amber-50/30 hidden space-y-6">
-            <div>
-                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wide">Deliveries & Active Open Orders</h2>
-                <p class="text-xs text-slate-500">Track drop-offs, or edit/cancel active open orders directly from POSpad.</p>
-            </div>
-            <div class="space-y-3">
-                <h3 class="text-xs font-bold text-amber-800 uppercase tracking-wider">Out for Delivery</h3>
-                <div id="deliveryQueueContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-            <div class="space-y-3 pt-4 border-t border-amber-200/60">
-                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">All Open / Kitchen Orders (Editable & Cancellable)</h3>
-                <div id="openOrdersQueueContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-        </div>
-    </div>
+    </main>
 
-    <!-- Right Pane: Cart & Checkout -->
-    <div id="rightCartPane" class="w-full md:w-[440px] flex flex-col h-full bg-white shadow-2xl shrink-0 border-l border-amber-200/60 overflow-hidden">
-        <div class="p-4 bg-amber-50/60 border-b border-amber-200/60 space-y-3 shrink-0">
-            <h2 class="text-sm font-bold text-[#b37a00] uppercase tracking-wider">Customer & Delivery</h2>
-            <div class="flex gap-2">
-                <input type="text" id="customerName" placeholder="Customer Name (e.g. Mr. Ryan)" class="flex-1 p-2.5 bg-white border border-amber-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#ffb612] focus:outline-none shadow-sm">
-                <button onclick="openMapModal()" class="px-3.5 py-2.5 bg-[#ffb612] hover:bg-amber-400 text-[#2d2300] rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition">Map Locator</button>
-            </div>
-            <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm">
-                <span class="text-xs font-bold text-slate-500">Destination:</span>
-                <span id="selectedLocationDisplay" class="text-xs font-bold text-[#b37a00]">Select location via Map or type below</span>
-            </div>
-            <input type="text" id="customLocationInput" placeholder="Or enter specific room (e.g. Library Counter)" class="w-full p-2 bg-white border border-amber-200 rounded-lg text-xs text-slate-600 focus:outline-none focus:ring-1 focus:ring-[#ffb612]">
-        </div>
-
-        <div class="flex-1 p-4 overflow-y-auto space-y-2.5 bg-white" id="cartContainer">
-            <div class="text-center py-12 text-slate-400">
-                <p class="text-sm font-medium">Cart is empty</p>
-                <p class="text-xs text-slate-400">Tap items from the catalog to start an order</p>
-            </div>
-        </div>
-
-        <div class="p-4 bg-amber-50/60 border-t border-amber-200/60 space-y-3 shrink-0">
-            <div class="space-y-1 text-sm">
-                <div class="flex justify-between text-slate-600"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
-                <div class="flex justify-between text-lg font-bold text-[#b37a00] pt-1 border-t border-amber-200"><span>Total Due</span><span id="cartTotal">$0.00</span></div>
-            </div>
-            <div class="grid grid-cols-2 gap-2 pt-1">
-                <button onclick="setPaymentMethod('eftpos')" id="payBtnEftpos" class="py-2.5 px-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold shadow-sm transition">EFTPOS Paid</button>
-                <button onclick="setPaymentMethod('later')" id="payBtnLater" class="py-2.5 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-300 rounded-xl text-xs font-bold transition">Pay Later</button>
-            </div>
-            <button onclick="submitOrder()" id="submitOrderBtn" class="w-full py-3.5 bg-[#ffb612] hover:bg-amber-400 text-[#2d2300] rounded-xl text-base font-bold shadow-lg shadow-amber-900/10 transition">SUBMIT ORDER TO KITCHEN</button>
-        </div>
-    </div>
-
-    <!-- Modals -->
-    <div id="coffeeModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-amber-200 space-y-4">
-            <h3 class="text-lg font-bold text-[#b37a00]" id="modalCoffeeTitle">Customize Coffee</h3>
-            <div class="space-y-3">
+    <!-- Coffee Customization Modal -->
+    <div id="coffeeModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-amber-200 space-y-4">
+            <h3 class="text-base font-bold text-slate-900" id="modalCoffeeTitle">Customize Coffee</h3>
+            <div class="space-y-3 text-xs">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Shot Type</label>
+                    <label class="block font-bold text-slate-600 uppercase mb-1">Shot Type</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="selectShotType('Short')" id="shotShort" class="py-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold transition">Short</button>
-                        <button onclick="selectShotType('Long')" id="shotLong" class="py-2 bg-amber-50 text-slate-700 rounded-xl text-xs font-bold transition">Long</button>
+                        <button onclick="selectShotType('Short')" id="shotShort" class="py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition">Short</button>
+                        <button onclick="selectShotType('Long')" id="shotLong" class="py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition">Long</button>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Size & Price</label>
+                    <label class="block font-bold text-slate-600 uppercase mb-1">Size & Price</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="selectCoffeeSize('Small', 2.50)" id="sizeSm" class="py-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold transition">Small ($2.50)</button>
-                        <button onclick="selectCoffeeSize('Med/Large', 3.50)" id="sizeMed" class="py-2 bg-amber-50 text-slate-700 rounded-xl text-xs font-bold transition">Med/Large ($3.50)</button>
+                        <button onclick="selectCoffeeSize('Small', 2.50)" id="sizeSm" class="py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition">Small ($2.50)</button>
+                        <button onclick="selectCoffeeSize('Med/Large', 3.50)" id="sizeMed" class="py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition">Med/Large ($3.50)</button>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Milk Choice</label>
-                    <select id="coffeeMilk" class="w-full p-2.5 bg-amber-50/50 border border-amber-200 rounded-xl text-sm font-medium">
+                    <label class="block font-bold text-slate-600 uppercase mb-1">Milk Choice</label>
+                    <select id="coffeeMilk" class="w-full p-2.5 bg-slate-50 border border-amber-200 rounded-xl text-xs font-medium">
                         <option value="Full Cream">Full Cream</option>
                         <option value="Light Milk">Light Milk</option>
                         <option value="Skim Milk">Skim Milk</option>
@@ -151,260 +140,154 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Notes</label>
-                    <input type="text" id="coffeeNotes" placeholder="e.g. Extra hot" class="w-full p-2.5 bg-amber-50/50 border border-amber-200 rounded-xl text-sm">
+                    <label class="block font-bold text-slate-600 uppercase mb-1">Notes</label>
+                    <input type="text" id="coffeeNotes" placeholder="e.g. Extra hot" class="w-full p-2.5 bg-slate-50 border border-amber-200 rounded-xl text-xs">
                 </div>
             </div>
             <div class="flex gap-2 pt-2">
-                <button onclick="closeCoffeeModal()" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
-                <button onclick="confirmCoffeeAdd()" class="flex-1 py-2.5 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold shadow">Add to Cart</button>
+                <button onclick="closeCoffeeModal()" class="flex-1 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                <button onclick="confirmCoffeeAdd()" class="flex-1 py-2.5 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow">Add to Cart</button>
             </div>
         </div>
     </div>
 
-    <!-- Edit Order Modal -->
-    <div id="editOrderModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-amber-200 space-y-4">
-            <h3 class="text-xl font-bold text-[#b37a00]">Edit Open Order</h3>
-            <input type="hidden" id="editOrderId">
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Customer Name</label>
-                    <input type="text" id="editCustomerInput" class="w-full p-2.5 bg-amber-50/50 border border-amber-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#ffb612] focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pickup Location</label>
-                    <input type="text" id="editLocationInput" class="w-full p-2.5 bg-amber-50/50 border border-amber-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#ffb612] focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Order Items & Notes</label>
-                    <textarea id="editItemsInput" rows="3" class="w-full p-2.5 bg-amber-50/50 border border-amber-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#ffb612] focus:outline-none"></textarea>
-                </div>
+    <!-- Active Orders Modal -->
+    <div id="activeOrdersModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-amber-200">
+            <div class="p-5 bg-amber-50/50 border-b border-amber-100 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-base text-slate-900">Active Orders & Delivery Board</h3>
+                <button onclick="closeActiveOrdersModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold px-2">&times;</button>
             </div>
-            <div class="flex gap-3 pt-2">
-                <button onclick="closeEditOrderModal()" class="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-sm transition-colors">Cancel</button>
-                <button onclick="saveEditedOrder()" class="flex-1 py-2.5 bg-[#ffb612] hover:bg-amber-400 text-[#2d2300] rounded-xl font-bold text-sm transition-colors shadow">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="mapModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-amber-200">
-            <div class="p-4 bg-[#ffb612] text-[#2d2300] flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-lg">School Map & Location Locator</h3>
-                <button onclick="closeMapModal()" class="text-[#2d2300] hover:text-white text-xl font-bold px-2">&times;</button>
-            </div>
-            <div class="p-4 overflow-y-auto flex-1 space-y-4 bg-amber-50/30">
-                <p class="text-xs text-slate-600">Select a school block below:</p>
-                <div class="flex flex-wrap gap-2" id="blockButtonsContainer">
-                    <button onclick="selectBlock('Admin')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">Admin</button>
-                    <button onclick="selectBlock('Hall')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">Hall</button>
-                    <button onclick="selectBlock('A Block')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">A Block</button>
-                    <button onclick="selectBlock('B Block')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">B Block</button>
-                    <button onclick="selectBlock('C Block')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">C Block</button>
-                    <button onclick="selectBlock('D Block')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">D Block</button>
-                    <button onclick="selectBlock('E Block')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">E Block</button>
-                    <button onclick="selectBlock('F Block')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">F Block</button>
-                    <button onclick="selectBlock('G Block')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">G Block</button>
-                    <button onclick="selectBlock('Wellbeing')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">Wellbeing Hub</button>
-                    <button onclick="selectBlock('K Block')" class="block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100">K Block</button>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-amber-200 shadow-sm space-y-3">
-                    <h4 id="activeBlockTitle" class="text-sm font-bold text-[#b37a00]">Select a block above</h4>
-                    <div id="roomOptionsContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2"><span class="text-xs text-slate-400 italic">No block selected yet...</span></div>
-                </div>
-            </div>
-            <div class="p-3 bg-white border-t border-amber-200 flex justify-end shrink-0">
-                <button onclick="closeMapModal()" class="px-4 py-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold">Done</button>
+            <div class="p-6 overflow-y-auto flex-1 space-y-4" id="activeOrdersListContainer"></div>
+            <div class="p-4 bg-amber-50/50 border-t border-amber-100 flex justify-end shrink-0">
+                <button onclick="closeActiveOrdersModal()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow">Close Board</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Dynamic API Endpoint configuration for Local vs Cloud (Render)
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:8000'
             : window.location.origin;
 
-        let catalog = [
-            { id: 'c1', name: 'Long Black Coffee', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c2', name: 'Short Black Coffee', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c3', name: 'Flat White', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c4', name: 'Long Macchiato', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c5', name: 'Short Macchiato', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c6', name: 'Latte', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c7', name: 'Cappuccino', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c8', name: 'Mocha', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c9', name: 'Iced Coffee', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c10', name: 'Affogato', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 'c11', name: 'Piccolo', category: 'coffee', price: 2.50, isCoffee: true, inStock: true, image: '' },
-            { id: 't1', name: 'Caramel Slice', category: 'snacks', price: 3.00, isCoffee: false, inStock: true, image: '' },
-            { id: 't2', name: 'Lemon Slice', category: 'snacks', price: 3.00, isCoffee: false, inStock: true, image: '' },
-            { id: 't3', name: 'Hedgehog Slice', category: 'snacks', price: 3.00, isCoffee: false, inStock: true, image: '' },
-            { id: 't4', name: 'Melting Moments', category: 'snacks', price: 3.00, isCoffee: false, inStock: true, image: '' },
-            { id: 't5', name: 'Yoghurt Pots with Berries and Honey', category: 'snacks', price: 4.00, isCoffee: false, inStock: true, image: '' },
-            { id: 'd1', name: 'Hudson Lemonade', category: 'drinks', price: 2.50, isCoffee: false, inStock: true, image: '' },
-            { id: 'd2', name: 'Orange Sunrise', category: 'drinks', price: 2.50, isCoffee: false, inStock: true, image: '' },
-            { id: 'm1', name: 'Chocolate Milkshake', category: 'drinks', price: 3.50, isCoffee: false, inStock: true, image: '' },
-            { id: 'm2', name: 'Caramel Milkshake', category: 'drinks', price: 3.50, isCoffee: false, inStock: true, image: '' },
-            { id: 'm3', name: 'Strawberry Milkshake', category: 'drinks', price: 3.50, isCoffee: false, inStock: true, image: '' },
-            { id: 's1', name: 'Bahn Mi with Chicken', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 's2', name: 'Bahn Mi with Crispy Pork', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 's3', name: 'Reuben Sandwich', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 's4', name: 'Cuban Sandwich', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 's5', name: "Bellingham's Club Sandwich", category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 's6', name: "Mbappe's Croque Monsieur", category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 's7', name: 'Egg Sandwich', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 'w1', name: 'Chicken Caesar Wrap', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 'w2', name: 'Tandoori Chicken Wrap', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 'ds1', name: 'Butter Chicken with Rice', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 'ds2', name: 'Chicken Biryani with Rice', category: 'food', price: 7.00, isCoffee: false, inStock: true, image: '' },
-            { id: 'ds3', name: 'Pumpkin Soup', category: 'food', price: 5.00, isCoffee: false, inStock: true, image: '' },
-            { id: 'ds4', name: 'Thai Chicken and Pumpkin Soup', category: 'food', price: 5.00, isCoffee: false, inStock: true, image: '' }
+        let masterProducts = [
+            { id: 'c1', name: 'Long Black Coffee', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c2', name: 'Short Black Coffee', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c3', name: 'Flat White', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c4', name: 'Long Macchiato', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c5', name: 'Short Macchiato', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c6', name: 'Latte', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c7', name: 'Cappuccino', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c8', name: 'Mocha', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c9', name: 'Iced Coffee', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c10', name: 'Affogato', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 'c11', name: 'Piccolo', category: 'coffee', price: 2.50, inStock: true, image: '' },
+            { id: 't1', name: 'Caramel Slice', category: 'snacks', price: 3.00, inStock: true, image: '' },
+            { id: 't2', name: 'Lemon Slice', category: 'snacks', price: 3.00, inStock: true, image: '' },
+            { id: 't3', name: 'Hedgehog Slice', category: 'snacks', price: 3.00, inStock: true, image: '' },
+            { id: 't4', name: 'Melting Moments', category: 'snacks', price: 3.00, inStock: true, image: '' },
+            { id: 't5', name: 'Yoghurt Pots with Berries and Honey', category: 'snacks', price: 4.00, inStock: true, image: '' },
+            { id: 'd1', name: 'Hudson Lemonade', category: 'drinks', price: 2.50, inStock: true, image: '' },
+            { id: 'd2', name: 'Orange Sunrise', category: 'drinks', price: 2.50, inStock: true, image: '' },
+            { id: 'm1', name: 'Chocolate Milkshake', category: 'drinks', price: 3.50, inStock: true, image: '' },
+            { id: 'm2', name: 'Caramel Milkshake', category: 'drinks', price: 3.50, inStock: true, image: '' },
+            { id: 'm3', name: 'Strawberry Milkshake', category: 'drinks', price: 3.50, inStock: true, image: '' },
+            { id: 's1', name: 'Bahn Mi with Chicken', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 's2', name: 'Bahn Mi with Crispy Pork', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 's3', name: 'Reuben Sandwich', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 's4', name: 'Cuban Sandwich', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 's5', name: "Bellingham's Club Sandwich", category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 's6', name: "Mbappe's Croque Monsieur", category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 's7', name: 'Egg Sandwich', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 'w1', name: 'Chicken Caesar Wrap', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 'w2', name: 'Tandoori Chicken Wrap', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 'ds1', name: 'Butter Chicken with Rice', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 'ds2', name: 'Chicken Biryani with Rice', category: 'food', price: 7.00, inStock: true, image: '' },
+            { id: 'ds3', name: 'Pumpkin Soup', category: 'food', price: 5.00, inStock: true, image: '' },
+            { id: 'ds4', name: 'Thai Chicken and Pumpkin Soup', category: 'food', price: 5.00, inStock: true, image: '' }
         ];
 
-        const schoolBlocks = {
-            "Admin": ["Main Reception", "Principal Office", "Accounts"],
-            "Hall": ["Main Stage", "Seating Area", "AV Control Room"],
-            "A Block": ["Room A1", "Room A2", "Room A3", "Picnic Shelter Area"],
-            "B Block": ["Room B1", "Room B2", "Room B3", "Room B4"],
-            "C Block": ["Counsellor Office", "School Support", "PDHPE Staff Room", "English Staff Room"],
-            "D Block": ["TAS Staff Room", "Maths Staff Room", "Room D1", "Room D2"],
-            "E Block": ["Science Staff Room", "CAPA Staff Room", "Cafe de Bish Kitchen", "Cafe de Bish Dining"],
-            "F Block": ["Dark Room", "Room F1", "Room F2", "Boys Toilet"],
-            "G Block": ["HSIE Staff Room", "Special Ed Staff", "Learning Support", "Podcast Room", "SLSO Staff"],
-            "Wellbeing": ["Girls At The Centre", "Wellbeing Lounge", "Meeting Room 1"],
-            "K Block": ["K Block Main Area", "Portable 1", "Portable 2"]
-        };
-
+        let orders = [];
         let cart = [];
-        let currentPaymentMethod = 'eftpos';
+        let paymentMethod = 'cash';
+        let activeCategory = 'coffee';
         let currentCoffeeItem = null;
         let selectedShotType = 'Short';
         let selectedCoffeeSizeName = 'Small';
         let selectedCoffeePrice = 2.50;
-        let activeCategory = 'coffee';
 
         window.onload = async function() {
-            await syncCatalogFromServer();
+            await fetchServerData();
             renderProducts(activeCategory);
-            updateCartUI();
-
-            // Background Poll loop for catalog, deliveries, and Cafe Open/Closed status
-            setInterval(async () => {
-                await syncCatalogFromServer();
-                if (!document.getElementById('workspace-delivering').classList.contains('hidden')) {
-                    renderDeliveries();
-                }
-            }, 1000);
+            setInterval(fetchServerData, 1500);
         };
 
-        async function syncCatalogFromServer() {
+        async function fetchServerData() {
             try {
                 const res = await fetch(`${API_BASE}/api/orders`);
                 const data = await res.json();
-                
-                // --- CAFE OPEN/CLOSED STATUS CHECK ---
-                const isCafeOpen = data.cafeOpen !== undefined ? data.cafeOpen : true;
-                const submitBtn = document.getElementById('submitOrderBtn');
-                
-                if (!isCafeOpen) {
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.className = "w-full py-3.5 bg-slate-400 text-white rounded-xl text-base font-bold cursor-not-allowed transition";
-                        submitBtn.innerText = "CAFE IS CURRENTLY CLOSED";
-                    }
-                } else {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.className = "w-full py-3.5 bg-[#ffb612] hover:bg-amber-400 text-[#2d2300] rounded-xl text-base font-bold shadow-lg shadow-amber-900/10 transition";
-                        submitBtn.innerText = "SUBMIT ORDER TO KITCHEN";
-                    }
-                }
-                // -------------------------------------
-
-                if (data.products && data.products.length > 0) {
-                    catalog = data.products.map(p => {
-                        let cat = (p.category || 'coffee').toLowerCase();
-                        if (cat === 'coffees') cat = 'coffee';
-                        return {
-                            id: p.id,
-                            name: p.name,
-                            category: cat,
-                            price: p.price,
-                            isCoffee: cat === 'coffee' || p.name.toLowerCase().includes('coffee') || p.name.toLowerCase().includes('latte') || p.name.toLowerCase().includes('cappuccino') || p.name.toLowerCase().includes('flat white'),
-                            inStock: p.inStock !== false,
-                            image: p.image || ''
-                        };
-                    });
-                    renderProducts(activeCategory);
-                }
-                window._cachedOrders = data.orders || [];
-            } catch(e) {
+                if (data.products && data.products.length > 0) masterProducts = data.products;
+                if (data.orders) orders = data.orders;
+                renderProducts(activeCategory);
+            } catch (e) {
                 console.error("Sync error:", e);
             }
         }
 
-        function switchWorkspace(mode) {
-            if (mode === 'ordering') {
-                document.getElementById('workspace-ordering').classList.remove('hidden');
-                document.getElementById('workspace-delivering').classList.add('hidden');
-                document.getElementById('rightCartPane').classList.remove('hidden');
-                document.getElementById('ws-ordering').className = "px-4 py-1.5 rounded-lg font-bold text-xs transition-all bg-white text-[#2d2300] shadow";
-                document.getElementById('ws-delivering').className = "px-4 py-1.5 rounded-lg font-bold text-xs transition-all text-[#2d2300] hover:bg-white/20";
-            } else {
-                document.getElementById('workspace-ordering').classList.add('hidden');
-                document.getElementById('workspace-delivering').classList.remove('hidden');
-                document.getElementById('rightCartPane').classList.add('hidden');
-                document.getElementById('ws-delivering').className = "px-4 py-1.5 rounded-lg font-bold text-xs transition-all bg-white text-[#2d2300] shadow";
-                document.getElementById('ws-ordering').className = "px-4 py-1.5 rounded-lg font-bold text-xs transition-all text-[#2d2300] hover:bg-white/20";
-                renderDeliveries();
+        async function pushToServer() {
+            try {
+                await fetch(`${API_BASE}/api/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orders: orders, products: masterProducts })
+                });
+            } catch (e) {
+                console.error("Push error:", e);
             }
         }
 
         function switchCategory(cat) {
             activeCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.classList.remove('bg-[#ffb612]', 'text-[#2d2300]');
-                btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-amber-200');
+                btn.className = "cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60";
             });
-            event.target.classList.remove('bg-white', 'text-slate-700', 'border', 'border-amber-200');
-            event.target.classList.add('bg-[#ffb612]', 'text-[#2d2300]');
+            event.target.className = "cat-btn px-4 py-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition shrink-0";
             renderProducts(cat);
         }
 
         function renderProducts(cat) {
             const grid = document.getElementById('productGrid');
             grid.innerHTML = '';
-            const filtered = (cat === 'all' ? catalog : catalog.filter(p => p.category === cat)).filter(p => p.inStock !== false);
+            const filtered = (cat === 'all' ? masterProducts : masterProducts.filter(p => (p.category || '').toLowerCase() === cat)).filter(p => p.inStock !== false);
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 font-medium">No available items in this category.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-sm">No items available in this category.</div>`;
                 return;
             }
 
             filtered.forEach(prod => {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl p-3 border border-amber-200/60 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group';
+                card.className = 'bg-white rounded-2xl p-3.5 border border-amber-200/60 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group';
                 card.onclick = () => handleProductClick(prod);
-                const imgSrc = prod.image ? prod.image : `https://placehold.co/150x150/ffb612/2d2300?text=${encodeURIComponent(prod.name)}`;
+                const imgSrc = prod.image ? prod.image : `https://placehold.co/150x150/ffb612/005b45?text=${encodeURIComponent(prod.name)}`;
 
                 card.innerHTML = `
                     <div>
-                        <div class="w-full h-28 bg-amber-50 rounded-xl overflow-hidden mb-2 relative">
+                        <div class="w-full h-24 bg-amber-50 rounded-xl overflow-hidden mb-2.5 relative">
                             <img src="${imgSrc}" class="w-full h-full object-cover group-hover:scale-105 transition">
-                            <span class="absolute top-2 right-2 bg-[#ffb612] text-[#2d2300] text-[10px] font-bold px-2 py-0.5 rounded-full shadow">$${prod.price.toFixed(2)}</span>
+                            <span class="absolute top-2 right-2 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">$${prod.price.toFixed(2)}</span>
                         </div>
-                        <h3 class="font-bold text-slate-800 text-xs line-clamp-2">${prod.name}</h3>
+                        <h4 class="font-bold text-slate-800 text-xs line-clamp-2">${prod.name}</h4>
                     </div>
-                    <div class="mt-2 text-right"><span class="text-[11px] font-bold text-amber-900 bg-amber-100 px-2 py-1 rounded-lg">Tap to Add</span></div>
+                    <div class="mt-2 text-right"><span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-lg">Tap to Add</span></div>
                 `;
                 grid.appendChild(card);
             });
         }
 
         function handleProductClick(prod) {
-            if (prod.isCoffee) {
+            const isCoffee = prod.category === 'coffee' || prod.name.toLowerCase().includes('coffee') || prod.name.toLowerCase().includes('latte') || prod.name.toLowerCase().includes('cappuccino') || prod.name.toLowerCase().includes('flat white');
+            if (isCoffee) {
                 currentCoffeeItem = prod;
                 selectedShotType = 'Short';
                 selectedCoffeeSizeName = 'Small';
@@ -412,30 +295,34 @@
                 document.getElementById('modalCoffeeTitle').innerText = `Customize: ${prod.name}`;
                 document.getElementById('coffeeModal').classList.remove('hidden');
             } else {
-                addToCart({ id: prod.id, name: prod.name, price: prod.price, details: '', notes: '' });
+                cart.push({ id: prod.id, name: prod.name, price: prod.price, details: '', notes: '' });
+                updateCartUI();
             }
         }
 
         function selectShotType(shot) {
             selectedShotType = shot;
-            document.getElementById('shotShort').className = shot === 'Short' ? 'py-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold transition' : 'py-2 bg-amber-50 text-slate-700 rounded-xl text-xs font-bold transition';
-            document.getElementById('shotLong').className = shot === 'Long' ? 'py-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold transition' : 'py-2 bg-amber-50 text-slate-700 rounded-xl text-xs font-bold transition';
+            document.getElementById('shotShort').className = shot === 'Short' ? 'py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
+            document.getElementById('shotLong').className = shot === 'Long' ? 'py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
         }
 
         function selectCoffeeSize(size, price) {
             selectedCoffeeSizeName = size;
             selectedCoffeePrice = price;
-            document.getElementById('sizeSm').className = size === 'Small' ? 'py-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold transition' : 'py-2 bg-amber-50 text-slate-700 rounded-xl text-xs font-bold transition';
-            document.getElementById('sizeMed').className = size !== 'Small' ? 'py-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold transition' : 'py-2 bg-amber-50 text-slate-700 rounded-xl text-xs font-bold transition';
+            document.getElementById('sizeSm').className = size === 'Small' ? 'py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
+            document.getElementById('sizeMed').className = size !== 'Small' ? 'py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
         }
 
-        function closeCoffeeModal() { document.getElementById('coffeeModal').classList.add('hidden'); currentCoffeeItem = null; }
+        function closeCoffeeModal() {
+            document.getElementById('coffeeModal').classList.add('hidden');
+            currentCoffeeItem = null;
+        }
 
         function confirmCoffeeAdd() {
             if (!currentCoffeeItem) return;
             const milk = document.getElementById('coffeeMilk').value;
             const notes = document.getElementById('coffeeNotes').value;
-            addToCart({
+            cart.push({
                 id: currentCoffeeItem.id + '-' + Date.now(),
                 name: currentCoffeeItem.name,
                 price: selectedCoffeePrice,
@@ -443,277 +330,121 @@
                 notes: notes
             });
             closeCoffeeModal();
+            updateCartUI();
         }
-
-        function addToCart(item) { cart.push(item); updateCartUI(); }
-        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
 
         function updateCartUI() {
             const container = document.getElementById('cartContainer');
             container.innerHTML = '';
             if (cart.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-slate-400"><p class="text-sm font-medium">Cart is empty</p><p class="text-xs">Tap items to add</p></div>`;
-                document.getElementById('cartSubtotal').innerText = '$0.00';
+                container.innerHTML = `<div class="text-center py-16 text-slate-400"><p class="text-sm font-medium">Cart is empty</p><p class="text-xs text-slate-400 mt-1">Tap items on the left to add</p></div>`;
                 document.getElementById('cartTotal').innerText = '$0.00';
                 return;
             }
-            let subtotal = 0;
+            let total = 0;
             cart.forEach((item, idx) => {
-                subtotal += item.price;
+                total += item.price;
                 const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-2.5 bg-amber-50/40 rounded-xl border border-amber-200/60 text-xs';
+                div.className = 'flex items-center justify-between p-2.5 bg-amber-50/40 rounded-xl border border-amber-100 text-xs';
                 div.innerHTML = `
                     <div class="flex-1 pr-2"><div class="font-bold text-slate-800">${item.name}</div>${item.details ? `<div class="text-slate-500">${item.details}</div>` : ''}</div>
                     <div class="font-bold text-slate-700 mr-2">$${item.price.toFixed(2)}</div>
-                    <button onclick="removeFromCart(${idx})" class="text-red-400 font-bold">&times;</button>
+                    <button onclick="cart.splice(${idx},1); updateCartUI();" class="text-red-400 font-bold px-1">&times;</button>
                 `;
                 container.appendChild(div);
             });
-            document.getElementById('cartSubtotal').innerText = `$${subtotal.toFixed(2)}`;
-            document.getElementById('cartTotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cartTotal').innerText = `$${total.toFixed(2)}`;
+            if (paymentMethod === 'cash') calculateChange();
         }
 
-        function setPaymentMethod(method) {
-            currentPaymentMethod = method;
-            ['eftpos', 'later'].forEach(m => {
-                const btn = document.getElementById(`payBtn${m.charAt(0).toUpperCase() + m.slice(1)}`);
-                btn.className = m === method ? 'py-2.5 px-2 bg-[#ffb612] text-[#2d2300] rounded-xl text-xs font-bold shadow-sm transition' : 'py-2.5 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-300 rounded-xl text-xs font-bold transition';
+        function setPayment(method) {
+            paymentMethod = method;
+            ['cash', 'eftpos', 'later'].forEach(m => {
+                const btn = document.getElementById(`pay${m.charAt(0).toUpperCase() + m.slice(1)}`);
+                btn.className = m === method ? 'py-2 px-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition' : 'py-2 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-200 rounded-xl text-xs font-bold transition';
             });
+            const cashBox = document.getElementById('cashBox');
+            if (method === 'cash') { cashBox.classList.remove('hidden'); calculateChange(); } else { cashBox.classList.add('hidden'); }
         }
 
-        function openMapModal() { document.getElementById('mapModal').classList.remove('hidden'); }
-        function closeMapModal() { document.getElementById('mapModal').classList.add('hidden'); }
-
-        function selectBlock(blockName) {
-            document.querySelectorAll('.block-btn').forEach(btn => btn.className = 'block-btn px-3 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-bold hover:bg-amber-100');
-            event.target.className = 'block-btn px-3 py-1.5 bg-[#ffb612] text-[#2d2300] rounded-lg text-xs font-bold shadow';
-            document.getElementById('activeBlockTitle').innerText = `Rooms / Areas in ${blockName}`;
-            const roomContainer = document.getElementById('roomOptionsContainer');
-            roomContainer.innerHTML = '';
-            if (schoolBlocks[blockName]) {
-                schoolBlocks[blockName].forEach(room => {
-                    const btn = document.createElement('button');
-                    btn.className = 'p-2 bg-amber-50/50 hover:bg-amber-100 border border-amber-200 rounded-xl text-xs font-bold text-slate-700 text-center transition';
-                    btn.innerText = room;
-                    btn.onclick = () => {
-                        const fullLoc = `${blockName} - ${room}`;
-                        document.getElementById('selectedLocationDisplay').innerText = fullLoc;
-                        document.getElementById('customLocationInput').value = fullLoc;
-                        closeMapModal();
-                    };
-                    roomContainer.appendChild(btn);
-                });
-            }
+        function calculateChange() {
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const given = parseFloat(document.getElementById('cashGiven').value) || 0;
+            const change = given - total;
+            const changeEl = document.getElementById('changeDue');
+            if (change >= 0) { changeEl.innerText = `$${change.toFixed(2)}`; changeEl.className = 'text-emerald-600 text-xs font-black'; }
+            else { changeEl.innerText = `Short $${Math.abs(change).toFixed(2)}`; changeEl.className = 'text-red-500 text-xs font-black'; }
         }
 
         async function submitOrder() {
-            const customerName = document.getElementById('customerName').value.trim();
-            if (!customerName) { alert("Please enter the customer's name."); return; }
-            if (cart.length === 0) { alert("Please add at least one item to the cart."); return; }
+            const name = document.getElementById('customerName').value.trim() || 'Student Customer';
+            const location = document.getElementById('customerLocation').value.trim() || 'Classroom / Pickup';
+            if (cart.length === 0) { alert("Cart is empty."); return; }
 
-            try {
-                // Double check server status before submitting
-                const checkRes = await fetch(`${API_BASE}/api/orders`);
-                const checkData = await checkRes.json();
-                if (checkData.cafeOpen === false) {
-                    alert("The cafe is currently closed. Orders cannot be submitted.");
-                    return;
-                }
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const paymentStr = paymentMethod === 'cash' ? 'Paid (Cash)' : paymentMethod === 'eftpos' ? 'Paid (EFTPOS)' : 'Unpaid (Pay Later)';
 
-                const location = document.getElementById('customLocationInput').value.trim() || document.getElementById('selectedLocationDisplay').innerText;
-                const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            const newOrder = {
+                id: Date.now(),
+                customer: name,
+                location: location,
+                items: cart.map(i => `${i.name} ${i.details ? '('+i.details+')' : ''} ${i.notes ? '['+i.notes+']' : ''}`).join(', '),
+                total: total,
+                payment: paymentStr,
+                status: 'New',
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
 
-                const newOrder = {
-                    id: Date.now(),
-                    customer: customerName,
-                    location: location,
-                    items: cart.map(i => `${i.name} ${i.details ? '('+i.details+')' : ''}`).join(', '),
-                    total: subtotal,
-                    payment: currentPaymentMethod === 'eftpos' ? 'Portable EFTPOS' : 'Pay Later / Unpaid',
-                    status: 'New',
-                    date: new Date().toLocaleDateString(),
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                };
-
-                let existingOrders = checkData.orders || [];
-                existingOrders.unshift(newOrder);
-
-                await fetch(`${API_BASE}/api/orders`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orders: existingOrders, products: catalog, cafeOpen: checkData.cafeOpen })
-                });
-
-                cart = [];
-                document.getElementById('customerName').value = '';
-                document.getElementById('customLocationInput').value = '';
-                document.getElementById('selectedLocationDisplay').innerText = 'Select location via Map or type below';
-                updateCartUI();
-                alert(`Order successfully submitted to OrderUp!`);
-            } catch (e) {
-                alert('Failed to submit order to server.');
-                console.error(e);
-            }
+            orders.unshift(newOrder);
+            cart = [];
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerLocation').value = '';
+            updateCartUI();
+            await pushToServer();
+            alert("Order sent successfully to OrderUp kitchen!");
         }
 
-        async function renderDeliveries() {
-            const deliveryContainer = document.getElementById('deliveryQueueContainer');
-            const openOrdersContainer = document.getElementById('openOrdersQueueContainer');
-            try {
-                const res = await fetch(`${API_BASE}/api/orders`);
-                const data = await res.json();
-                const orders = data.orders || [];
-                
-                const outForDeliveryOrders = orders.filter(o => o.status === 'Out for Delivery' && o.status !== 'Cancelled');
-                const activeKitchenOrders = orders.filter(o => (o.status === 'New' || o.status === 'In Progress') && o.status !== 'Cancelled');
+        function openActiveOrdersModal() {
+            renderActiveOrdersList();
+            document.getElementById('activeOrdersModal').classList.remove('hidden');
+        }
 
-                if (outForDeliveryOrders.length === 0) {
-                    deliveryContainer.innerHTML = `<div class="col-span-full py-6 text-center text-slate-400 bg-white rounded-2xl border border-amber-200/60 text-xs">No orders currently out for delivery.</div>`;
-                } else {
-                    deliveryContainer.innerHTML = outForDeliveryOrders.map(o => `
-                        <div class="bg-white p-5 rounded-2xl border border-amber-200/80 shadow-sm flex flex-col justify-between gap-3">
-                            <div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">${o.status}</span>
-                                    <span class="text-xs font-mono text-slate-400">${o.time}</span>
-                                </div>
-                                <h3 class="text-lg font-bold text-slate-800 mt-2">${o.customer}</h3>
-                                <p class="text-xs font-bold text-[#b37a00] mt-0.5">Location: ${o.location}</p>
-                                <p class="text-xs text-slate-600 bg-amber-50/50 p-2.5 rounded-xl mt-2">${o.items}</p>
-                            </div>
-                            <div class="flex justify-between items-center pt-3 border-t border-amber-100 flex-wrap gap-2">
-                                <div class="flex gap-1.5">
-                                    <button onclick="openEditOrderModal(${o.id})" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Edit</button>
-                                    <button onclick="cancelOrder(${o.id})" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-xl">Cancel</button>
-                                </div>
-                                <button onclick="confirmDelivery(${o.id})" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">Confirm Delivery</button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
+        function closeActiveOrdersModal() {
+            document.getElementById('activeOrdersModal').classList.add('hidden');
+        }
 
-                if (activeKitchenOrders.length === 0) {
-                    openOrdersContainer.innerHTML = `<div class="col-span-full py-6 text-center text-slate-400 bg-white rounded-2xl border border-amber-200/60 text-xs">No active open kitchen orders.</div>`;
-                } else {
-                    openOrdersContainer.innerHTML = activeKitchenOrders.map(o => `
-                        <div class="bg-white p-5 rounded-2xl border border-amber-200/80 shadow-sm flex flex-col justify-between gap-3">
-                            <div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">${o.status}</span>
-                                    <span class="text-xs font-mono text-slate-400">${o.time}</span>
-                                </div>
-                                <h3 class="text-lg font-bold text-slate-800 mt-2">${o.customer}</h3>
-                                <p class="text-xs font-bold text-[#b37a00] mt-0.5">Location: ${o.location}</p>
-                                <p class="text-xs text-slate-600 bg-amber-50/50 p-2.5 rounded-xl mt-2">${o.items}</p>
-                            </div>
-                            <div class="flex justify-between items-center pt-3 border-t border-amber-100">
-                                <span class="text-xs font-bold text-slate-500">Total: <span class="text-emerald-600">$${o.total.toFixed(2)}</span></span>
-                                <div class="flex gap-1.5">
-                                    <button onclick="openEditOrderModal(${o.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Edit</button>
-                                    <button onclick="cancelOrder(${o.id})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-xl">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            } catch (e) {
-                console.error("Error loading deliveries:", e);
+        function renderActiveOrdersList() {
+            const container = document.getElementById('activeOrdersListContainer');
+            const activeOrDelivery = orders.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled');
+            if (activeOrDelivery.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-12">No active or pending orders.</p>`;
+                return;
             }
+            container.innerHTML = activeOrDelivery.map(o => `
+                <div class="flex items-center justify-between p-4 bg-slate-50 border border-amber-200/60 rounded-2xl">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${o.status === 'New' ? 'bg-amber-100 text-amber-800' : o.status === 'In Progress' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'}">${o.status}</span>
+                            <span class="text-xs font-mono text-slate-400">${o.time}</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-800 mt-1">${o.customer} <span class="text-amber-700 font-medium">(${o.location})</span></h4>
+                        <p class="text-xs text-slate-600 mt-1">${o.items}</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <span class="text-xs font-bold text-emerald-600">$${o.total.toFixed(2)}</span>
+                        ${o.status === 'Out for Delivery' ? `<button onclick="confirmDelivery(${o.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow">Confirm Delivery</button>` : `<span class="text-[10px] text-slate-400 font-medium">Kitchen Processing</span>`}
+                    </div>
+                </div>
+            `).join('');
         }
 
         async function confirmDelivery(id) {
-            try {
-                const res = await fetch(`${API_BASE}/api/orders`);
-                const data = await res.json();
-                let orders = data.orders || [];
-                const order = orders.find(o => o.id === id);
-                if (order) {
-                    order.status = 'Delivered';
-                    await fetch(`${API_BASE}/api/orders`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orders: orders, products: catalog, cafeOpen: data.cafeOpen })
-                    });
-                    renderDeliveries();
-                }
-            } catch (e) {
-                console.error("Error confirming delivery:", e);
-            }
-        }
-
-        async function cancelOrder(id) {
-            if (confirm("Are you sure you want to cancel this order?")) {
-                try {
-                    const res = await fetch(`${API_BASE}/api/orders`);
-                    const data = await res.json();
-                    let orders = data.orders || [];
-                    const order = orders.find(o => o.id === id);
-                    if (order) {
-                        order.status = 'Cancelled';
-                        await fetch(`${API_BASE}/api/orders`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ orders: orders, products: catalog, cafeOpen: data.cafeOpen })
-                        });
-                        renderDeliveries();
-                    }
-                } catch (e) {
-                    console.error("Error cancelling order:", e);
-                }
-            }
-        }
-
-        function openEditOrderModal(id) {
-            fetch(`${API_BASE}/api/orders`)
-                .then(res => res.json())
-                .then(data => {
-                    const orders = data.orders || [];
-                    const order = orders.find(o => o.id === id);
-                    if (order) {
-                        document.getElementById('editOrderId').value = order.id;
-                        document.getElementById('editCustomerInput').value = order.customer;
-                        document.getElementById('editLocationInput').value = order.location;
-                        document.getElementById('editItemsInput').value = order.items;
-                        document.getElementById('editOrderModal').classList.remove('hidden');
-                        window._cachedOrdersForEdit = orders;
-                    }
-                });
-        }
-
-        function closeEditOrderModal() {
-            document.getElementById('editOrderModal').classList.add('hidden');
-        }
-
-        async function saveEditedOrder() {
-            const id = parseInt(document.getElementById('editOrderId').value);
-            const customer = document.getElementById('editCustomerInput').value.trim();
-            const location = document.getElementById('editLocationInput').value.trim();
-            const items = document.getElementById('editItemsInput').value.trim();
-
-            if (!customer) {
-                alert("Customer name cannot be empty.");
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_BASE}/api/orders`);
-                const data = await res.json();
-                let orders = data.orders || [];
-                const order = orders.find(o => o.id === id);
-                if (order) {
-                    order.customer = customer;
-                    order.location = location;
-                    order.items = items;
-                    await fetch(`${API_BASE}/api/orders`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orders: orders, products: catalog, cafeOpen: data.cafeOpen })
-                    });
-                    closeEditOrderModal();
-                    renderDeliveries();
-                }
-            } catch (e) {
-                console.error("Error saving edited order:", e);
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = 'Delivered';
+                await pushToServer();
+                renderActiveOrdersList();
             }
         }
     </script>

@@ -1,0 +1,15 @@
+{
+  "name": "POSpad - Cafe de bish Register",
+  "short_name": "POSpad",
+  "start_url": "/POSpad.html",
+  "display": "standalone",
+  "background_color": "#fdfbf7",
+  "theme_color": "#ffb612",
+  "icons": [
+    {
+      "src": "crest-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

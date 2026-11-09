@@ -241,6 +241,32 @@
     </div>
 </div>
 
+<!-- Edit Order Modal -->
+<div id="editOrderModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4">
+        <h3 class="text-xl font-bold text-[#005b45]">Edit Active Order</h3>
+        <input type="hidden" id="editOrderId">
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Customer Name</label>
+                <input type="text" id="editCustomerInput" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#005b45] focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pickup Location</label>
+                <input type="text" id="editLocationInput" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#005b45] focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Order Items & Notes</label>
+                <textarea id="editItemsInput" rows="3" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#005b45] focus:outline-none"></textarea>
+            </div>
+        </div>
+        <div class="flex gap-3 pt-2">
+            <button onclick="closeEditOrderModal()" class="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-sm transition-colors">Cancel</button>
+            <button onclick="saveEditedOrder()" class="flex-1 py-2.5 bg-[#005b45] hover:bg-[#004736] text-white rounded-xl font-bold text-sm transition-colors shadow">Save Changes</button>
+        </div>
+    </div>
+</div>
+
 <div id="coffeeModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 space-y-4">
         <h3 class="text-lg font-bold text-[#005b45]" id="modalCoffeeTitle">Customize Coffee</h3>
@@ -405,7 +431,7 @@
         await loadFromServer();
         renderAll();
         
-        // Poll Python backend server every 1 second for live updates
+        // Poll Python backend server every 1 second for live updates (acts as continuous keep-alive ping)
         setInterval(pollUpdates, 1000);
         setInterval(checkHeartbeat, 2000);
     };
@@ -652,16 +678,16 @@
     }
 
     function updateCounts() {
-        document.getElementById('liveCount').innerText = orders.filter(o => o.status !== 'Delivered').length;
-        document.getElementById('ledgerCount').innerText = orders.filter(o => o.payment.includes('Unpaid')).length;
+        document.getElementById('liveCount').innerText = orders.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled').length;
+        document.getElementById('ledgerCount').innerText = orders.filter(o => o.payment.includes('Unpaid') && o.status !== 'Cancelled').length;
     }
 
     function renderLiveOrders() {
         const activeContainer = document.getElementById('activeKitchenContainer');
         const deliveryContainer = document.getElementById('outForDeliveryContainer');
 
-        const activeOrders = orders.filter(o => o.status === 'New' || o.status === 'In Progress');
-        const outForDeliveryOrders = orders.filter(o => o.status === 'Out for Delivery');
+        const activeOrders = orders.filter(o => (o.status === 'New' || o.status === 'In Progress') && o.status !== 'Cancelled');
+        const outForDeliveryOrders = orders.filter(o => o.status === 'Out for Delivery' && o.status !== 'Cancelled');
 
         activeContainer.innerHTML = activeOrders.length === 0 ? `<div class="col-span-full py-10 text-center text-slate-400 font-medium bg-white rounded-2xl border border-slate-200">No active kitchen orders right now.</div>` : activeOrders.map(o => `
             <div class="bg-white rounded-2xl p-5 shadow-md border-2 ${o.status === 'New' ? 'border-emerald-500 new-order-flash' : 'border-slate-200'} flex flex-col justify-between gap-4">
@@ -674,11 +700,13 @@
                     <span class="text-xs font-mono text-slate-400">${o.time}</span>
                 </div>
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm font-medium text-slate-700">${o.items}</div>
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100 flex-wrap gap-2">
                     <span class="text-xs font-bold text-slate-500">Payment: <span class="text-slate-800">${o.payment}</span></span>
-                    <div class="flex gap-2">
+                    <div class="flex gap-1.5 flex-wrap">
+                        <button onclick="openEditOrderModal(${o.id})" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg shadow">Edit</button>
+                        <button onclick="cancelOrder(${o.id})" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-lg shadow">Cancel</button>
                         ${o.status === 'New' ? `<button onclick="updateOrderStatus(${o.id}, 'In Progress')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow">Start Cooking</button>` : ''}
-                        <button onclick="updateOrderStatus(${o.id}, 'Out for Delivery')" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow">Send Out for Delivery</button>
+                        <button onclick="updateOrderStatus(${o.id}, 'Out for Delivery')" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow">Send Out</button>
                     </div>
                 </div>
             </div>
@@ -695,17 +723,69 @@
                     <span class="text-xs font-mono text-slate-400">${o.time}</span>
                 </div>
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm font-medium text-slate-700">${o.items}</div>
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500 font-bold">
-                    <span>Waiting for POSpad Runner Confirmation...</span>
-                    <span class="text-emerald-600">$${o.total.toFixed(2)}</span>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500 font-bold flex-wrap gap-2">
+                    <span>Waiting for Runner Confirmation...</span>
+                    <div class="flex gap-1.5">
+                        <button onclick="openEditOrderModal(${o.id})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg shadow">Edit</button>
+                        <button onclick="cancelOrder(${o.id})" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg shadow">Cancel</button>
+                        <span class="text-emerald-600 ml-1 self-center">$${o.total.toFixed(2)}</span>
+                    </div>
                 </div>
             </div>
         `).join('');
     }
 
+    // Cancel Order Function
+    function cancelOrder(id) {
+        if (confirm("Are you sure you want to cancel this order?")) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = "Cancelled";
+                saveAndSync();
+            }
+        }
+    }
+
+    // Edit Order Functions
+    function openEditOrderModal(id) {
+        const order = orders.find(o => o.id === id);
+        if (order) {
+            document.getElementById('editOrderId').value = order.id;
+            document.getElementById('editCustomerInput').value = order.customer;
+            document.getElementById('editLocationInput').value = order.location;
+            document.getElementById('editItemsInput').value = order.items;
+            document.getElementById('editOrderModal').classList.remove('hidden');
+        }
+    }
+
+    function closeEditOrderModal() {
+        document.getElementById('editOrderModal').classList.add('hidden');
+    }
+
+    function saveEditedOrder() {
+        const id = parseInt(document.getElementById('editOrderId').value);
+        const customer = document.getElementById('editCustomerInput').value.trim();
+        const location = document.getElementById('editLocationInput').value.trim();
+        const items = document.getElementById('editItemsInput').value.trim();
+
+        if (!customer) {
+            alert("Customer name cannot be empty.");
+            return;
+        }
+
+        const order = orders.find(o => o.id === id);
+        if (order) {
+            order.customer = customer;
+            order.location = location;
+            order.items = items;
+            saveAndSync();
+            closeEditOrderModal();
+        }
+    }
+
     function renderLedger() {
         const tbody = document.getElementById('ledgerTableBody');
-        const unpaidOrders = orders.filter(o => o.payment.includes('Unpaid'));
+        const unpaidOrders = orders.filter(o => o.payment.includes('Unpaid') && o.status !== 'Cancelled');
         if (unpaidOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No outstanding unpaid orders. All clear!</td></tr>`; return; }
         tbody.innerHTML = unpaidOrders.map(o => `
             <tr class="hover:bg-slate-50">
@@ -716,6 +796,7 @@
                 <td class="p-4 flex gap-2">
                     <button onclick="markOrderPaid(${o.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow">Mark Paid (EFTPOS)</button>
                     <button onclick="openCashModal(${o.id})" class="px-3 py-1.5 bg-[#ffb612] hover:bg-amber-400 text-[#005b45] font-bold text-xs rounded-lg shadow">Take Cash</button>
+                    <button onclick="cancelOrder(${o.id})" class="px-2.5 py-1.5 bg-red-50 text-red-600 font-bold text-xs rounded-lg">Cancel</button>
                 </td>
             </tr>
         `).join('');
@@ -764,7 +845,7 @@
                 <td class="p-4 text-slate-600">${o.location}</td>
                 <td class="p-4 text-slate-600 text-xs">${o.items}</td>
                 <td class="p-4 font-bold text-emerald-600">$${o.total.toFixed(2)}</td>
-                <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${o.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${o.status}</span></td>
+                <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${o.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : o.status === 'Cancelled' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}">${o.status}</span></td>
             </tr>
         `).join('');
     }
@@ -840,7 +921,7 @@
     }
 
     function clearCompletedOrders() {
-        orders = orders.filter(o => o.status !== 'Delivered');
+        orders = orders.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled');
         saveAndSync();
     }
 

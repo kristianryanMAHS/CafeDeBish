@@ -28,45 +28,43 @@
 </head>
 <body class="h-screen w-full flex flex-col overflow-hidden">
 
-<!-- Top Header Navigation -->
-<header class="bg-[#005b45] text-white px-6 py-3 flex flex-wrap items-center justify-between shadow-lg z-20 gap-4">
-    <div class="flex items-center gap-5">
+<!-- Top Header Navigation (Forced Single Line / Flex-Nowrap) -->
+<header class="bg-[#005b45] text-white px-5 py-2.5 flex flex-nowrap items-center justify-between shadow-lg z-20 gap-3 shrink-0">
+    <div class="flex items-center gap-4 shrink-0">
         <!-- Large 2-Line High Splash Logo -->
-        <div class="h-20 w-20 flex items-center justify-center shrink-0 -my-2">
+        <div class="h-16 w-16 flex items-center justify-center shrink-0 -my-2">
             <img src="OrderUpLogo.png" alt="OrderUp Logo" class="h-full w-full object-contain drop-shadow-md">
         </div>
         
-        <!-- Shifted Cafe Status & Connection Indicator Row -->
-        <div class="flex flex-col gap-1.5">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-xl border border-white/20">
-                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-300" id="statusLabel">Cafe Open</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="cafeToggle" onchange="toggleCafeStatus()" class="sr-only peer" checked>
-                        <div class="w-9 h-5 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                    </label>
-                </div>
-                <div id="connectionIndicator" class="flex items-center gap-2 bg-slate-800/60 border border-slate-600 px-3 py-1 rounded-full text-xs font-semibold text-slate-300 transition-all">
-                    <span id="connectionDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
-                    <span id="connectionText">Server Connected</span>
-                </div>
+        <!-- Cafe Status & Connection Indicator Row -->
+        <div class="flex items-center gap-2.5 shrink-0">
+            <div class="flex items-center gap-2 bg-white/10 px-2.5 py-1 rounded-xl border border-white/20">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-300" id="statusLabel">Cafe Open</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="cafeToggle" onchange="toggleCafeStatus()" class="sr-only peer" checked>
+                    <div class="w-8 h-4.5 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+            </div>
+            <div id="connectionIndicator" class="flex items-center gap-1.5 bg-slate-800/60 border border-slate-600 px-2.5 py-1 rounded-full text-[11px] font-semibold text-slate-300 transition-all">
+                <span id="connectionDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span id="connectionText">Connected</span>
             </div>
         </div>
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="flex gap-2 bg-[#004736] p-1 rounded-xl border border-white/10">
-        <button onclick="switchTab('live')" id="tab-live" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all bg-white text-[#005b45] shadow">Live Orders (<span id="liveCount">0</span>)</button>
-        <button onclick="switchTab('neworder')" id="tab-neworder" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">New Order (Walk-in)</button>
-        <button onclick="switchTab('ledger')" id="tab-ledger" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Unpaid Orders (<span id="ledgerCount">0</span>)</button>
-        <button onclick="switchTab('allorders')" id="tab-allorders" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">All Orders</button>
-        <button onclick="switchTab('stock')" id="tab-stock" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Stock & 86-List</button>
-        <button onclick="switchTab('menu')" id="tab-menu" class="px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Product Manager</button>
+    <div class="flex gap-1 bg-[#004736] p-1 rounded-xl border border-white/10 shrink-0">
+        <button onclick="switchTab('live')" id="tab-live" class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all bg-white text-[#005b45] shadow">Live (<span id="liveCount">0</span>)</button>
+        <button onclick="switchTab('neworder')" id="tab-neworder" class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Walk-in</button>
+        <button onclick="switchTab('ledger')" id="tab-ledger" class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Unpaid (<span id="ledgerCount">0</span>)</button>
+        <button onclick="switchTab('allorders')" id="tab-allorders" class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">All Orders</button>
+        <button onclick="switchTab('stock')" id="tab-stock" class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">86-List</button>
+        <button onclick="switchTab('menu')" id="tab-menu" class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10">Products</button>
     </div>
 
-    <!-- Right Controls -->
-    <div class="flex items-center gap-3">
-        <button onclick="exportOrders()" class="px-3.5 py-2 bg-[#ffb612] hover:bg-yellow-400 text-[#005b45] font-bold text-xs rounded-xl transition-all shadow">
+    <!-- Right Controls (Export CSV on same line) -->
+    <div class="flex items-center gap-2 shrink-0">
+        <button onclick="exportOrders()" class="px-3 py-1.5 bg-[#ffb612] hover:bg-yellow-400 text-[#005b45] font-bold text-xs rounded-xl transition-all shadow">
             Export CSV
         </button>
     </div>
@@ -88,7 +86,7 @@
         <div class="space-y-4 pt-4">
             <div class="flex justify-between items-center border-b pb-2">
                 <h2 class="text-base font-bold text-slate-800 uppercase tracking-wide">Out for Delivery (Waiting Runner Confirmation)</h2>
-                <span class="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-bold">Awaiting POSpad Delivery Confirmation</span>
+                <span class="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-bold">Awaiting Delivery Confirmation</span>
             </div>
             <div id="outForDeliveryContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
         </div>
@@ -479,17 +477,17 @@
         fetch(`${API_BASE}/api/orders`)
             .then(res => {
                 if (res.ok) {
-                    indicator.className = "flex items-center gap-2 bg-emerald-900/60 border border-emerald-500/50 px-3 py-1 rounded-full text-xs font-semibold text-emerald-200 transition-all";
+                    indicator.className = "flex items-center gap-1.5 bg-emerald-900/60 border border-emerald-500/50 px-2.5 py-1 rounded-full text-[11px] font-semibold text-emerald-200 transition-all";
                     dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-                    text.innerText = "Server Connected";
+                    text.innerText = "Connected";
                 } else {
                     throw new Error();
                 }
             })
             .catch(() => {
-                indicator.className = "flex items-center gap-2 bg-red-900/60 border border-red-500/50 px-3 py-1 rounded-full text-xs font-semibold text-red-200 transition-all";
+                indicator.className = "flex items-center gap-1.5 bg-red-900/60 border border-red-500/50 px-2.5 py-1 rounded-full text-[11px] font-semibold text-red-200 transition-all";
                 dot.className = "w-2 h-2 rounded-full bg-red-400";
-                text.innerText = "Server Disconnected";
+                text.innerText = "Disconnected";
             });
     }
 
@@ -498,10 +496,10 @@
             const el = document.getElementById(`section-${t}`);
             if (el) el.classList.add('hidden');
             const btn = document.getElementById(`tab-${t}`);
-            if (btn) btn.className = "px-3.5 py-2 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10";
+            if (btn) btn.className = "px-3 py-1.5 rounded-lg font-bold text-xs transition-all text-white hover:bg-white/10";
         });
         document.getElementById(`section-${tab}`).classList.remove('hidden');
-        document.getElementById(`tab-${tab}`).className = "px-3.5 py-2 rounded-lg font-bold text-xs transition-all bg-white text-[#005b45] shadow";
+        document.getElementById(`tab-${tab}`).className = "px-3 py-1.5 rounded-lg font-bold text-xs transition-all bg-white text-[#005b45] shadow";
         if (tab === 'allorders') renderAllOrdersTable();
         if (tab === 'neworder') renderWalkInProducts(activeCategory);
     }
@@ -704,6 +702,7 @@
                         <button onclick="cancelOrder(${o.id})" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-lg shadow">Cancel</button>
                         ${o.status === 'New' ? `<button onclick="updateOrderStatus(${o.id}, 'In Progress')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow">Start Cooking</button>` : ''}
                         <button onclick="updateOrderStatus(${o.id}, 'Out for Delivery')" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow">Send Out</button>
+                        <button onclick="updateOrderStatus(${o.id}, 'Delivered')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shadow">Complete Order</button>
                     </div>
                 </div>
             </div>
@@ -725,6 +724,7 @@
                     <div class="flex gap-1.5">
                         <button onclick="openEditOrderModal(${o.id})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg shadow">Edit</button>
                         <button onclick="cancelOrder(${o.id})" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg shadow">Cancel</button>
+                        <button onclick="updateOrderStatus(${o.id}, 'Delivered')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow">Complete Order</button>
                         <span class="text-emerald-600 ml-1 self-center">$${o.total.toFixed(2)}</span>
                     </div>
                 </div>

@@ -20,8 +20,8 @@
 </head>
 <body class="h-screen w-full flex flex-col overflow-hidden bg-[#fdfbf7] text-slate-800">
 
-    <!-- Top Header Bar -->
-    <header class="h-20 bg-white border-b border-amber-200/60 px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
+    <!-- Top Header Bar with Gold/Yellow Theme -->
+    <header class="h-20 bg-[#ffb612] border-b border-amber-300 px-6 flex items-center justify-between shrink-0 shadow-md z-20">
         <div class="flex items-center gap-4">
             <!-- POSpad Splash Logo (Shield & Green Box Removed) -->
             <div class="h-16 w-16 flex items-center justify-center shrink-0">
@@ -29,17 +29,17 @@
             </div>
             
             <div class="flex flex-col">
-                <span class="text-xs font-bold tracking-widest text-amber-600 uppercase">Cafe de bish</span>
-                <h1 class="text-lg font-black tracking-tight text-slate-900">iPad Register</h1>
+                <span class="text-xs font-bold tracking-widest text-[#005b45] uppercase">Cafe de bish</span>
+                <h1 class="text-lg font-black tracking-tight text-slate-950">iPad Register</h1>
             </div>
         </div>
 
         <div class="flex items-center gap-3">
-            <div id="connectionIndicator" class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700">
+            <div id="connectionIndicator" class="flex items-center gap-2 bg-white/80 border border-amber-300 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-800 shadow-sm">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>Live Sync Active</span>
             </div>
-            <button onclick="openActiveOrdersModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition shadow-sm">
+            <button onclick="openActiveOrdersModal()" class="px-4 py-2 bg-[#005b45] hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition shadow-sm">
                 Active Orders / Delivery Board
             </button>
         </div>
@@ -52,7 +52,7 @@
         <section class="lg:col-span-2 flex flex-col bg-white border border-amber-200/60 rounded-3xl overflow-hidden shadow-sm">
             <!-- Category Tabs -->
             <div class="p-4 bg-amber-50/50 border-b border-amber-100 flex gap-2 overflow-x-auto shrink-0">
-                <button onclick="switchCategory('coffee')" class="cat-btn px-4 py-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition shrink-0">Coffee</button>
+                <button onclick="switchCategory('coffee')" class="cat-btn px-4 py-2 bg-[#ffb612] text-slate-950 rounded-xl text-xs font-bold shadow-sm transition shrink-0">Coffee</button>
                 <button onclick="switchCategory('snacks')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60">Snacks</button>
                 <button onclick="switchCategory('drinks')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60">Drinks</button>
                 <button onclick="switchCategory('food')" class="cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60">Food</button>
@@ -67,8 +67,8 @@
         <section class="flex flex-col bg-white border border-amber-200/60 rounded-3xl overflow-hidden shadow-sm">
             <div class="p-5 bg-amber-50/50 border-b border-amber-100 space-y-3 shrink-0">
                 <h2 class="font-bold text-sm text-slate-900 uppercase tracking-wide">Current Order</h2>
-                <input type="text" id="customerName" placeholder="Customer Name (e.g. John Doe)" class="w-full p-2.5 bg-white border border-amber-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none shadow-sm">
-                <input type="text" id="customerLocation" placeholder="Delivery Location (e.g. Staff Room / Table 4)" class="w-full p-2.5 bg-white border border-amber-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none shadow-sm">
+                <input type="text" id="customerName" placeholder="Customer Name (e.g. John Doe)" class="w-full p-2.5 bg-white border border-amber-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#ffb612] focus:outline-none shadow-sm">
+                <input type="text" id="customerLocation" placeholder="Delivery Location (e.g. Staff Room / Table 4)" class="w-full p-2.5 bg-white border border-amber-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#ffb612] focus:outline-none shadow-sm">
             </div>
 
             <!-- Cart Items List -->
@@ -83,11 +83,11 @@
             <div class="p-5 bg-amber-50/50 border-t border-amber-100 space-y-4 shrink-0">
                 <div class="flex justify-between items-center text-sm font-bold text-slate-700">
                     <span>Total Amount</span>
-                    <span id="cartTotal" class="text-amber-600 text-lg font-black">$0.00</span>
+                    <span id="cartTotal" class="text-[#005b45] text-lg font-black">$0.00</span>
                 </div>
 
                 <div class="grid grid-cols-3 gap-2">
-                    <button onclick="setPayment('cash')" id="payCash" class="py-2 px-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition">Cash</button>
+                    <button onclick="setPayment('cash')" id="payCash" class="py-2 px-2 bg-[#ffb612] text-slate-950 rounded-xl text-xs font-bold shadow-sm transition">Cash</button>
                     <button onclick="setPayment('eftpos')" id="payEftpos" class="py-2 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-200 rounded-xl text-xs font-bold transition">EFTPOS</button>
                     <button onclick="setPayment('later')" id="payLater" class="py-2 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-200 rounded-xl text-xs font-bold transition">Pay Later</button>
                 </div>
@@ -103,7 +103,7 @@
                     </div>
                 </div>
 
-                <button onclick="submitOrder()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-md transition">SUBMIT ORDER TO KITCHEN</button>
+                <button onclick="submitOrder()" class="w-full py-3 bg-[#ffb612] hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-md transition">SUBMIT ORDER TO KITCHEN</button>
             </div>
         </section>
 
@@ -117,14 +117,14 @@
                 <div>
                     <label class="block font-bold text-slate-600 uppercase mb-1">Shot Type</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="selectShotType('Short')" id="shotShort" class="py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition">Short</button>
+                        <button onclick="selectShotType('Short')" id="shotShort" class="py-2 bg-[#ffb612] text-slate-950 rounded-xl font-bold transition">Short</button>
                         <button onclick="selectShotType('Long')" id="shotLong" class="py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition">Long</button>
                     </div>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-600 uppercase mb-1">Size & Price</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="selectCoffeeSize('Small', 2.50)" id="sizeSm" class="py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition">Small ($2.50)</button>
+                        <button onclick="selectCoffeeSize('Small', 2.50)" id="sizeSm" class="py-2 bg-[#ffb612] text-slate-950 rounded-xl font-bold transition">Small ($2.50)</button>
                         <button onclick="selectCoffeeSize('Med/Large', 3.50)" id="sizeMed" class="py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition">Med/Large ($3.50)</button>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
             </div>
             <div class="flex gap-2 pt-2">
                 <button onclick="closeCoffeeModal()" class="flex-1 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
-                <button onclick="confirmCoffeeAdd()" class="flex-1 py-2.5 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow">Add to Cart</button>
+                <button onclick="confirmCoffeeAdd()" class="flex-1 py-2.5 bg-[#ffb612] text-slate-950 rounded-xl text-xs font-bold shadow">Add to Cart</button>
             </div>
         </div>
     </div>
@@ -160,7 +160,7 @@
             </div>
             <div class="p-6 overflow-y-auto flex-1 space-y-4" id="activeOrdersListContainer"></div>
             <div class="p-4 bg-amber-50/50 border-t border-amber-100 flex justify-end shrink-0">
-                <button onclick="closeActiveOrdersModal()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow">Close Board</button>
+                <button onclick="closeActiveOrdersModal()" class="px-5 py-2.5 bg-[#ffb612] hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow">Close Board</button>
             </div>
         </div>
     </div>
@@ -251,7 +251,7 @@
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 btn.className = "cat-btn px-4 py-2 bg-white text-slate-700 hover:bg-amber-50 rounded-xl text-xs font-bold transition shrink-0 border border-amber-200/60";
             });
-            event.target.className = "cat-btn px-4 py-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition shrink-0";
+            event.target.className = "cat-btn px-4 py-2 bg-[#ffb612] text-slate-950 rounded-xl text-xs font-bold shadow-sm transition shrink-0";
             renderProducts(cat);
         }
 
@@ -275,11 +275,11 @@
                     <div>
                         <div class="w-full h-24 bg-amber-50 rounded-xl overflow-hidden mb-2.5 relative">
                             <img src="${imgSrc}" class="w-full h-full object-cover group-hover:scale-105 transition">
-                            <span class="absolute top-2 right-2 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">$${prod.price.toFixed(2)}</span>
+                            <span class="absolute top-2 right-2 bg-[#ffb612] text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">$${prod.price.toFixed(2)}</span>
                         </div>
                         <h4 class="font-bold text-slate-800 text-xs line-clamp-2">${prod.name}</h4>
                     </div>
-                    <div class="mt-2 text-right"><span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-lg">Tap to Add</span></div>
+                    <div class="mt-2 text-right"><span class="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-1 rounded-lg">Tap to Add</span></div>
                 `;
                 grid.appendChild(card);
             });
@@ -302,15 +302,15 @@
 
         function selectShotType(shot) {
             selectedShotType = shot;
-            document.getElementById('shotShort').className = shot === 'Short' ? 'py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
-            document.getElementById('shotLong').className = shot === 'Long' ? 'py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
+            document.getElementById('shotShort').className = shot === 'Short' ? 'py-2 bg-[#ffb612] text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
+            document.getElementById('shotLong').className = shot === 'Long' ? 'py-2 bg-[#ffb612] text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
         }
 
         function selectCoffeeSize(size, price) {
             selectedCoffeeSizeName = size;
             selectedCoffeePrice = price;
-            document.getElementById('sizeSm').className = size === 'Small' ? 'py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
-            document.getElementById('sizeMed').className = size !== 'Small' ? 'py-2 bg-amber-500 text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
+            document.getElementById('sizeSm').className = size === 'Small' ? 'py-2 bg-[#ffb612] text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
+            document.getElementById('sizeMed').className = size !== 'Small' ? 'py-2 bg-[#ffb612] text-slate-950 rounded-xl font-bold transition' : 'py-2 bg-slate-100 text-slate-700 rounded-xl font-bold transition';
         }
 
         function closeCoffeeModal() {
@@ -361,7 +361,7 @@
             paymentMethod = method;
             ['cash', 'eftpos', 'later'].forEach(m => {
                 const btn = document.getElementById(`pay${m.charAt(0).toUpperCase() + m.slice(1)}`);
-                btn.className = m === method ? 'py-2 px-2 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition' : 'py-2 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-200 rounded-xl text-xs font-bold transition';
+                btn.className = m === method ? 'py-2 px-2 bg-[#ffb612] text-slate-950 rounded-xl text-xs font-bold shadow-sm transition' : 'py-2 px-2 bg-white hover:bg-amber-50 text-slate-700 border border-amber-200 rounded-xl text-xs font-bold transition';
             });
             const cashBox = document.getElementById('cashBox');
             if (method === 'cash') { cashBox.classList.remove('hidden'); calculateChange(); } else { cashBox.classList.add('hidden'); }

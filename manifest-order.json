@@ -1,0 +1,15 @@
+{
+  "name": "OrderUp - Cafe de bish Command Center",
+  "short_name": "OrderUp",
+  "start_url": "/OrderUp.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#005b45",
+  "icons": [
+    {
+      "src": "OrderUpIcon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
